@@ -3,7 +3,9 @@
 namespace App\Filament\Resources\FinancialLogs\Tables;
 
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
@@ -148,9 +150,6 @@ class FinancialLogsTable
                     ]),
             ])
             ->recordActions([
-                EditAction::make(),
-            ])
-            ->actions([
                 Action::make('markAsPaid')
                     ->label('Set Lunas')
                     ->icon('heroicon-o-check-circle')
@@ -159,10 +158,16 @@ class FinancialLogsTable
                     ->size('sm')
                     ->visible(fn($record) => $record->payment_status === 'unpaid')
                     ->action(fn($record) => $record->update(['payment_status' => 'paid'])),
+                ActionGroup::make([
+                    EditAction::make(),
+                    DeleteAction::make()
+                        ->modalHeading('Hapus Catatan'),
+                ])
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->modalHeading('Hapus Catatan Yang Dipilih'),
                 ]),
             ])
             ->striped()

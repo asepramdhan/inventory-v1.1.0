@@ -10,10 +10,13 @@ class EditFinancialLog extends EditRecord
 {
     protected static string $resource = FinancialLogResource::class;
 
+    protected static ?string $title = 'Ubah Pencatatan Keuangan';
+
     protected function getHeaderActions(): array
     {
         return [
-            DeleteAction::make(),
+            DeleteAction::make()
+                ->modalHeading('Hapus Catatan'),
         ];
     }
 }

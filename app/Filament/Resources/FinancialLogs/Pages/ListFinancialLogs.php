@@ -2,8 +2,10 @@
 
 namespace App\Filament\Resources\FinancialLogs\Pages;
 
+use App\Filament\Exports\FinancialLogExporter;
 use App\Filament\Resources\FinancialLogs\FinancialLogResource;
 use Filament\Actions\CreateAction;
+use Filament\Actions\ExportAction;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Contracts\Support\Htmlable;
 use Override;
@@ -25,6 +27,9 @@ class ListFinancialLogs extends ListRecords
         return [
             CreateAction::make()
                 ->label('Buat Catatan'),
+            ExportAction::make()
+                ->exporter(FinancialLogExporter::class)
+                ->label('Ekspor'),
         ];
     }
 }
