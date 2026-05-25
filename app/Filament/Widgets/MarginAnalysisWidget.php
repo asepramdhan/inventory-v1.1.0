@@ -18,7 +18,7 @@ class MarginAnalysisWidget extends StatsOverviewWidget
 
     protected ?string $pollingInterval = null;
 
-    protected static bool $isLazy = false;
+    protected static bool $isLazy = true;
 
     #[Override]
     public function getColumns(): int|array|null

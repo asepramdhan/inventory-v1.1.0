@@ -16,6 +16,7 @@ class ProductsTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->deferLoading()
             ->columns([
                 ImageColumn::make('image')->label('Gambar')
                     ->imageSize(55),

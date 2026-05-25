@@ -29,9 +29,15 @@ class TransactionsTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->filtersLayout(FiltersLayout::AboveContentCollapsible)
+            ->filtersFormColumns(3)
+            ->deferFilters(false)
+            ->persistFiltersInSession(true)
+            ->deferLoading()
             ->columns([
                 ImageColumn::make('items.product.image')
                     ->label('Gambar')
+                    ->limit(2)
                     ->imageSize(45),
                 TextColumn::make('order_number')
                     ->label('No. Pesanan')
@@ -163,10 +169,6 @@ class TransactionsTable
                     ->indicator('Status') // Menampilkan label filter saat aktif di atas tabel
                     ->native(false), // Menggunakan interface dropdown Filament yang lebih modern
             ])
-            ->filtersLayout(FiltersLayout::AboveContentCollapsible)
-            ->filtersFormColumns(3)
-            ->deferFilters(false)
-            ->persistFiltersInSession(true)
             ->recordActions([
                 ActionGroup::make([
                     Action::make('setStatuSent')

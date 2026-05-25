@@ -22,6 +22,7 @@ class LatestTransactions extends TableWidget
     public function table(Table $table): Table
     {
         return $table
+            ->deferLoading()
             ->query(fn(): Builder => TransactionItem::query())
             ->columns([
                 TextColumn::make('created_at')

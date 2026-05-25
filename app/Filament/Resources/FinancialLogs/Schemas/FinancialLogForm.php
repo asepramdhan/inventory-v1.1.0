@@ -8,6 +8,8 @@ use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Auth;
 
@@ -17,37 +19,102 @@ class FinancialLogForm
     {
         return $schema
             ->components([
-                Hidden::make('user_id')->default(Auth::user()->id),
-                Select::make('store_id')
-                    ->options(
-                        Store::query()
-                            ->where('user_id', Auth::user()->id)
-                            ->pluck('shop_name', 'id')
-                    )
-                    ->required(),
-                DatePicker::make('date')
-                    ->required(),
-                Select::make('type')
-                    ->options(['income' => 'Income', 'expense' => 'Expense'])
-                    ->default('expense')
-                    ->required(),
-                TextInput::make('category')
-                    ->required(),
-                Select::make('platform')
-                    ->options([
-                        'shopee' => 'Shopee',
-                        'lazada' => 'Lazada',
-                        'tokopedia' => 'Tokopedia',
-                        'blibli' => 'Blibli',
-                        'bukalapak' => 'Bukalapak',
-                        'tiktokshop' => 'Tiktokshop',
+                Section::make('Informasi Dasar')
+                    ->columns(2)
+                    ->schema([
+                        Hidden::make('user_id')->default(Auth::user()->id),
+
+                        Select::make('store_id')
+                            ->label('Toko / Store')
+                            ->options(
+                                Store::query()
+                                    ->where('user_id', Auth::user()->id)
+                                    ->pluck('shop_name', 'id')
+                            )
+                            ->nullable() // Buat nullable jika ada pengeluaran non-toko
+                            ->required(),
+
+                        DatePicker::make('date')
+                            ->label('Tanggal Pencatatan')
+                            ->default(now())
+                            ->required(),
+
+                        Select::make('type')
+                            ->label('Tipe Keuangan')
+                            ->options([
+                                'income' => 'Pemasukan (Income)',
+                                'expense' => 'Pengeluaran (Expense)',
+                            ])
+                            ->default('expense')
+                            ->live() // Memicu perubahan form secara real-time
+                            ->required(),
+
+                        Select::make('category')
+                            ->label('Kategori')
+                            ->options([
+                                'Stock' => 'Pemasukan Barang (Stock)',
+                                'Ads' => 'Biaya Iklan (Ads Spend)',
+                                'Operational' => 'Operasional',
+                                'Shipping' => 'Biaya Pengiriman',
+                                'Lainnya' => 'Lain-lain',
+                            ])
+                            ->live()
+                            ->required(),
+
+                        Select::make('platform')
+                            ->label('Platform Marketplace')
+                            ->options([
+                                'shopee' => 'Shopee',
+                                'lazada' => 'Lazada',
+                                'tokopedia' => 'Tokopedia',
+                                'tiktokshop' => 'Tiktok Shop',
+                                'offline' => 'Offline / Luar Marketplace',
+                            ])
+                            ->nullable(),
+                    ]),
+
+                Section::make('Detail Pembayaran & Transaksi')
+                    ->columns(2)
+                    ->schema([
+                        TextInput::make('amount')
+                            ->label('Nominal (Rupiah)')
+                            ->prefix('Rp')
+                            ->numeric()
+                            ->required(),
+
+                        // Tampilkan pilihan termin hanya jika tipenya 'expense' dan kategorinya 'Stock'
+                        Select::make('payment_method')
+                            ->label('Metode Pembayaran')
+                            ->options([
+                                'cash' => 'Cash / Langsung Lunas',
+                                'weekly_term' => 'Tempo Mingguan',
+                                'monthly_term' => 'Tempo Bulanan',
+                            ])
+                            ->default('cash')
+                            ->live()
+                            ->visible(fn(Get $get) => $get('type') === 'expense')
+                            ->required(),
+
+                        Select::make('payment_status')
+                            ->label('Status Pembayaran')
+                            ->options([
+                                'paid' => 'Lunas (Paid)',
+                                'unpaid' => 'Belum Dibayar (Unpaid / Utang)',
+                            ])
+                            ->default('paid')
+                            ->visible(fn(Get $get) => $get('type') === 'expense')
+                            ->required(),
+
+                        DatePicker::make('due_date')
+                            ->label('Tanggal Jatuh Tempo')
+                            ->visible(fn(Get $get) => in_array($get('payment_method'), ['weekly_term', 'monthly_term']))
+                            ->required(fn(Get $get) => in_array($get('payment_method'), ['weekly_term', 'monthly_term'])),
+
+                        Textarea::make('description')
+                            ->label('Catatan Tambahan')
+                            ->placeholder('Contoh: Sisa pembayaran supplier baju koko 50pcs')
+                            ->columnSpanFull(),
                     ])
-                    ->required(),
-                TextInput::make('amount')
-                    ->required()
-                    ->numeric(),
-                Textarea::make('description')
-                    ->columnSpanFull(),
             ]);
     }
 }

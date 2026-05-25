@@ -19,6 +19,11 @@ class AdsCostsTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->filtersLayout(FiltersLayout::AboveContentCollapsible)
+            ->filtersFormColumns(3)
+            ->deferFilters(false)
+            ->persistFiltersInSession(true)
+            ->deferLoading()
             ->columns([
                 TextColumn::make('store.shop_name')
                     ->label('Toko')
@@ -48,10 +53,6 @@ class AdsCostsTable
                     )
                     ->searchable(),
             ])
-            ->filtersLayout(FiltersLayout::AboveContentCollapsible)
-            ->filtersFormColumns(3)
-            ->deferFilters(false)
-            ->persistFiltersInSession(true)
             ->recordActions([
                 ViewAction::make()
                     ->iconButton(),

@@ -13,7 +13,7 @@ class CategoryWidget extends StatsOverviewWidget
 
     protected ?string $pollingInterval = null;
 
-    protected static bool $isLazy = false;
+    protected static bool $isLazy = true;
 
     protected function getTablePage(): string
     {
