@@ -11,6 +11,7 @@ use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Auth;
 
@@ -23,6 +24,11 @@ class AdsCostsTable
             ->filtersFormColumns(3)
             ->deferFilters(false)
             ->persistFiltersInSession(true)
+            ->groups([
+                Group::make('store.shop_name')
+                    ->label('Toko'),
+            ])
+            ->defaultGroup('store.shop_name')
             ->deferLoading()
             ->columns([
                 TextColumn::make('store.shop_name')

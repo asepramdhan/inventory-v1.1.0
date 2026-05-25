@@ -20,6 +20,7 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Grouping\Group;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -33,7 +34,15 @@ class TransactionsTable
             ->filtersFormColumns(3)
             ->deferFilters(false)
             ->persistFiltersInSession(true)
+            ->persistSortInSession(true)
             ->deferLoading()
+            ->groups([
+                Group::make('status')
+                    ->label('Status'),
+                Group::make('store.shop_name')
+                    ->label('Toko'),
+            ])
+            ->defaultGroup('status')
             ->columns([
                 ImageColumn::make('items.product.image')
                     ->label('Gambar')
@@ -46,7 +55,7 @@ class TransactionsTable
                     ->copyable()
                     ->copyMessage('No. Pesanan berhasil disalin')
                     ->copyMessageDuration(1500)
-                    ->description(fn($record) => ucfirst($record->items->first()->product->sku)),
+                    ->description(fn($record) => ucfirst(substr($record->items->first()->product->sku, 15))),
 
                 // 1. Toko dibuat lebih menonjol
                 TextColumn::make('store.shop_name')

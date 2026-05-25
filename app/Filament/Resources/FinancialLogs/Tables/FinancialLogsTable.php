@@ -8,6 +8,7 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 
 class FinancialLogsTable
@@ -18,6 +19,14 @@ class FinancialLogsTable
             ->deferFilters(false)
             ->persistFiltersInSession(true)
             ->deferLoading()
+            ->groups([
+                Group::make('payment_status')
+                    ->label('Status')
+                    ->getTitleFromRecordUsing(fn($record) => $record->payment_status === 'paid' ? 'Lunas' : 'Belum Lunas'),
+                Group::make('store.shop_name')
+                    ->label('Toko'),
+            ])
+            ->defaultGroup('payment_status')
             ->columns([
                 // 1. GABUNGAN TANGGAL & TOKO
                 TextColumn::make('date')

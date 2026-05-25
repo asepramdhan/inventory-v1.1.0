@@ -2,12 +2,14 @@
 
 namespace App\Filament\Resources\ProductPrices\Tables;
 
+use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 
 class ProductPricesTable
@@ -15,6 +17,11 @@ class ProductPricesTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->groups([
+                Group::make('store.shop_name')
+                    ->label('Toko'),
+            ])
+            ->defaultGroup('store.shop_name')
             ->deferLoading()
             ->columns([
                 ImageColumn::make('product.image')->label('Gambar')
@@ -53,11 +60,11 @@ class ProductPricesTable
                 //
             ])
             ->recordActions([
-                EditAction::make()
-                    ->iconButton(),
-                DeleteAction::make()
-                    ->iconButton()
-                    ->modalHeading('Hapus HPP Produk'),
+                ActionGroup::make([
+                    EditAction::make(),
+                    DeleteAction::make()
+                        ->modalHeading('Hapus HPP Produk'),
+                ])
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

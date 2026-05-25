@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Products\Tables;
 
+use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -9,6 +10,7 @@ use Filament\Actions\EditAction;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
+use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 
 class ProductsTable
@@ -16,6 +18,11 @@ class ProductsTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->groups([
+                Group::make('category.name')
+                    ->label('Kategori'),
+            ])
+            ->defaultGroup('category.name')
             ->deferLoading()
             ->columns([
                 ImageColumn::make('image')->label('Gambar')
@@ -72,11 +79,11 @@ class ProductsTable
                 //
             ])
             ->recordActions([
-                EditAction::make()
-                    ->iconButton(),
-                DeleteAction::make()
-                    ->iconButton()
-                    ->modalHeading('Hapus Produk'),
+                ActionGroup::make([
+                    EditAction::make(),
+                    DeleteAction::make()
+                        ->modalHeading('Hapus Produk'),
+                ])
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
