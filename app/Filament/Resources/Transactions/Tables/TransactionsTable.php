@@ -187,6 +187,20 @@ class TransactionsTable
                         ->hidden(fn($record) => $record->status !== 'diproses') // Hanya muncul jika status masih diproses
                         ->action(fn($record) => $record->update(['status' => 'dikirim']))
                         ->requiresConfirmation(),
+                    Action::make('setStatuDibatalkan')
+                        ->label('Dibatalkan')
+                        ->icon('heroicon-o-x-circle')
+                        ->color('danger')
+                        ->hidden(fn($record) => $record->status !== 'diproses') // Hanya muncul jika status masih diproses
+                        ->action(fn($record) => $record->update(['status' => 'dibatalkan']))
+                        ->requiresConfirmation(),
+                    Action::make('setGagalKirim')
+                        ->label('Gagal Kirim')
+                        ->icon('heroicon-o-x-circle')
+                        ->color('danger')
+                        ->hidden(fn($record) => $record->status !== 'dikirim') // Hanya muncul jika status masih dikirim
+                        ->action(fn($record) => $record->update(['status' => 'dibatalkan']))
+                        ->requiresConfirmation(),
                     Action::make('setStatuSelesai')
                         ->label('Set Selesai')
                         ->icon('heroicon-o-check-circle')

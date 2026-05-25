@@ -9,6 +9,8 @@ use Filament\Actions\CreateAction;
 use Filament\Actions\ExportAction;
 use Filament\Pages\Concerns\ExposesTableToWidgets;
 use Filament\Resources\Pages\ListRecords;
+use Filament\Schemas\Components\Component;
+use Filament\Schemas\Components\Tabs\Tab;
 use Illuminate\Contracts\Support\Htmlable;
 use Override;
 
@@ -42,6 +44,22 @@ class ListTransactions extends ListRecords
     {
         return [
             TransactionWidget::class,
+        ];
+    }
+
+    #[Override]
+    public function getTabs(): array
+    {
+        return [
+            'all' => Tab::make('Semua'),
+            'diproses' => Tab::make('Diproses')
+                ->modifyQueryUsing(fn($query) => $query->where('status', 'Diproses')),
+            'dikirim' => Tab::make('Dikirim')
+                ->modifyQueryUsing(fn($query) => $query->where('status', 'Dikirim')),
+            'selesai' => Tab::make('Selesai')
+                ->modifyQueryUsing(fn($query) => $query->where('status', 'Selesai')),
+            'dibatalkan' => Tab::make('Dibatalkan')
+                ->modifyQueryUsing(fn($query) => $query->where('status', 'Dibatalkan')),
         ];
     }
 }
