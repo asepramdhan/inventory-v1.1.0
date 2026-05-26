@@ -4,7 +4,7 @@ namespace App\Filament\Resources\Transactions\Pages;
 
 use App\Filament\Exports\TransactionExporter;
 use App\Filament\Resources\Transactions\TransactionResource;
-use App\Filament\Resources\Transactions\Widgets\TransactionWidget;
+// use App\Filament\Resources\Transactions\Widgets\TransactionWidget;
 use App\Models\Transaction;
 use Filament\Actions\CreateAction;
 use Filament\Actions\ExportAction;
@@ -44,7 +44,7 @@ class ListTransactions extends ListRecords
     protected function getHeaderWidgets(): array
     {
         return [
-            TransactionWidget::class,
+            // TransactionWidget::class,
         ];
     }
 
