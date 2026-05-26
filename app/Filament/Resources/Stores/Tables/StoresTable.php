@@ -9,7 +9,6 @@ use Filament\Actions\EditAction;
 use Filament\Tables\Columns\ColumnGroup;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
-use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 
 class StoresTable
@@ -17,11 +16,6 @@ class StoresTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->groups([
-                Group::make('platform')
-                    ->label('Platform'),
-            ])
-            ->defaultGroup('platform')
             ->deferLoading()
             ->columns([
                 TextColumn::make('platform')

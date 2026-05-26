@@ -2,98 +2,104 @@
 
 namespace App\Filament\Widgets;
 
+use App\Models\ProductPrice;
 use App\Models\TransactionItem;
-use Filament\Actions\BulkActionGroup;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Filament\Widgets\TableWidget;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class LatestTransactions extends TableWidget
 {
+    use InteractsWithPageFilters; // Mengizinkan tabel membaca filter global dari halaman induk
+
     protected ?string $pollingInterval = null;
-
     protected static bool $isLazy = false;
-
     protected int|string|array $columnSpan = 'full';
-
-    protected static ?string $heading = 'Transaksi Terakhir';
+    protected static ?string $heading = 'Rincian Transaksi & Margin Produk';
 
     public function table(Table $table): Table
     {
+        $startDate = $this->filters['startDate'] ?? null;
+        $endDate = $this->filters['endDate'] ?? null;
+        $storeId = $this->filters['storeId'] ?? null;
+        $userId = Auth::id();
+
         return $table
             ->deferLoading()
-            ->query(fn(): Builder => TransactionItem::query())
+            ->query(
+                fn(): Builder => TransactionItem::query()
+                    ->join('transactions', 'transaction_items.transaction_id', '=', 'transactions.id')
+                    ->where('transactions.user_id', $userId)
+                    ->when($startDate, fn($q) => $q->whereDate('transactions.created_at', '>=', $startDate))
+                    ->when($endDate, fn($q) => $q->whereDate('transactions.created_at', '<=', $endDate))
+                    ->when($storeId, fn($q) => $q->where('transactions.store_id', $storeId))
+                    ->select('transaction_items.*') // Menghindari ambiguitas ID kolom
+            )
             ->columns([
-                TextColumn::make('created_at')
-                    ->label('Tanggal Transaksi')
-                    ->description(fn($record) => "Platform: " . ucfirst($record->transaction->store->platform))
+                TextColumn::make('transaction.created_at') // <--- DIUBAH dari 'transactions.created_at' menjadi 'transaction.created_at'
+                    ->label('Tanggal')
                     ->dateTime('d M Y H:i')
-                    ->color('gray'),
-                TextColumn::make('product.name')
-                    ->label('Nama Produk')
-                    ->limit(20)
+                    ->timezone('Asia/Jakarta') // Memastikan timezone sesuai WIB
+                    ->description(fn($record) => "Toko: " . $record->transaction->store->shop_name)
                     ->color('gray')
-                    ->tooltip(function (TextColumn $column): ?string {
-                        $state = $column->getState();
-                        if (strlen($state) <= $column->getCharacterLimit()) {
-                            return null;
-                        }
-                        // Only render the tooltip if the column contents exceeds the length limit.
-                        return $state;
-                    }),
-                TextColumn::make('product.sku')
-                    ->label('SKU Produk')
-                    ->badge()
-                    ->limit(20)
-                    ->tooltip(function (TextColumn $column): ?string {
-                        $state = $column->getState();
-                        if (strlen($state) <= $column->getCharacterLimit()) {
-                            return null;
-                        }
-                        // Only render the tooltip if the column contents exceeds the length limit.
-                        return $state;
-                    })
-                    ->color('danger'),
+                    ->sortable(),
+
+                TextColumn::make('product.name')
+                    ->label('Produk / SKU')
+                    ->weight('medium')
+                    ->description(fn($record) => "SKU: " . ($record->product?->sku ?? '-')),
+
                 TextColumn::make('price')
                     ->label('Harga Jual')
                     ->money('IDR', locale: 'id_ID', decimalPlaces: 0)
                     ->color('success')
-                    ->weight('bold'),
-                TextColumn::make('total_margin') // Beri nama unik agar tidak bentrok dengan nama field DB
-                    ->label('Total Margin')
-                    ->money('IDR', locale: 'id_ID', decimalPlaces: 0)
-                    ->color('warning')
-                    ->weight('bold')
-                    ->getStateUsing(function (TransactionItem $record) {
-                        // 1. Ambil data Store melalui relasi Transaction
-                        $store = $record->transaction->store;
+                    ->alignEnd(),
 
-                        // Ambil nilai dasar
+                // FIX RUMUS: Total Margin Sekarang Mengurangi HPP secara Akurat!
+                TextColumn::make('total_margin')
+                    ->label('Margin Bersih')
+                    ->money('IDR', locale: 'id_ID', decimalPlaces: 0)
+                    ->weight('bold')
+                    ->color(fn($state) => $state >= 0 ? 'success' : 'danger')
+                    ->alignEnd()
+                    ->getStateUsing(function (TransactionItem $record) {
+                        $store = $record->transaction->store;
                         $subtotal = $record->price * $record->quantity;
 
-                        // 2. Hitung Potongan Admin (Asumsi admin_fee di DB adalah angka persen, misal 5.5)
-                        $adminFeePercent = (float) $store->admin_fee;
-                        $adminFeeAmount = $subtotal * ($adminFeePercent / 100);
+                        // 1. Ambil HPP produk pada toko terkait
+                        $hppUnit = ProductPrice::where('product_id', $record->product_id)
+                            ->where('store_id', $store->id)
+                            ->value('price') ?? 0;
+                        $totalHpp = $hppUnit * $record->quantity;
 
-                        // 3. Potongan Tetap
-                        $processingFee = (float) $store->processing_fee; // misal 1250
+                        // 2. Hitung Potongan Admin Marketplace
+                        $adminFeeAmount = $subtotal * ((float) $store->admin_fee / 100);
+
+                        // 3. Potongan Tetap Transaksi
+                        $processingFee = (float) $store->processing_fee;
                         $extraFee = (float) $store->extra_fee;
 
-                        // 4. Hitung Margin Akhir
-                        $margin = $subtotal - $adminFeeAmount - $processingFee - $extraFee;
-
-                        return $margin;
+                        // 4. HASIL AKHIR: Jual - Modal - Potongan Marketplace
+                        return $subtotal - $totalHpp - $adminFeeAmount - $processingFee - $extraFee;
                     })
                     ->description(function (TransactionItem $record) {
+                        // Tampilkan modal HPP per unit di deskripsi bawah kecil untuk mempermudah audit owner
                         $store = $record->transaction->store;
-                        return "Fee: {$store->admin_fee}% + Rp" . number_format($store->processing_fee, 0, ',', '.');
+                        $hppUnit = ProductPrice::where('product_id', $record->product_id)
+                            ->where('store_id', $store->id)
+                            ->value('price') ?? 0;
+                        return "HPP Unit: Rp" . number_format($hppUnit, 0, ',', '.');
                     }),
+
                 TextColumn::make('quantity')
                     ->label('Qty')
                     ->badge()
-                    ->color('info')
-                    ->weight('bold'),
+                    ->color('gray')
+                    ->alignCenter(),
+
                 TextColumn::make('transaction.status')
                     ->label('Status')
                     ->badge()
@@ -105,23 +111,9 @@ class LatestTransactions extends TableWidget
                         'dibatalkan' => 'danger',
                         default => 'gray',
                     })
-                    ->formatStateUsing(fn(string $state): string => ucfirst($state))
-                    ->sortable(),
+                    ->formatStateUsing(fn(string $state): string => ucfirst($state)),
             ])
-            ->filters([
-                //
-            ])
-            ->headerActions([
-                //
-            ])
-            ->recordActions([
-                //
-            ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    //
-                ]),
-            ])
+            ->striped()
             ->defaultSort('created_at', 'desc');
     }
 }

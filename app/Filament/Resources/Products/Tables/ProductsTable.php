@@ -10,7 +10,6 @@ use Filament\Actions\EditAction;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
-use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 
 class ProductsTable
@@ -18,11 +17,6 @@ class ProductsTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->groups([
-                Group::make('category.name')
-                    ->label('Kategori'),
-            ])
-            ->defaultGroup('category.name')
             ->deferLoading()
             ->columns([
                 ImageColumn::make('image')->label('Gambar')

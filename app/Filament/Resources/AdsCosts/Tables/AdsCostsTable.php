@@ -2,33 +2,23 @@
 
 namespace App\Filament\Resources\AdsCosts\Tables;
 
-use App\Models\Store;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Enums\FiltersLayout;
-use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
-use Illuminate\Support\Facades\Auth;
 
 class AdsCostsTable
 {
     public static function configure(Table $table): Table
     {
         return $table
-            ->filtersLayout(FiltersLayout::AboveContentCollapsible)
-            ->filtersFormColumns(3)
-            ->deferFilters(false)
-            ->persistFiltersInSession(true)
-            ->groups([
-                Group::make('store.shop_name')
-                    ->label('Toko'),
-            ])
-            ->defaultGroup('store.shop_name')
+            // ->filtersLayout(FiltersLayout::AboveContentCollapsible)
+            // ->filtersFormColumns(3)
+            // ->deferFilters(false)
+            // ->persistFiltersInSession(true)
             ->deferLoading()
             ->columns([
                 TextColumn::make('store.shop_name')
@@ -50,14 +40,14 @@ class AdsCostsTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                SelectFilter::make('store_id')
-                    ->label('Filter Toko')
-                    ->options(
-                        Store::query()
-                            ->where('user_id', Auth::user()->id)
-                            ->pluck('shop_name', 'id')
-                    )
-                    ->searchable(),
+                // SelectFilter::make('store_id')
+                //     ->label('Filter Toko')
+                //     ->options(
+                //         Store::query()
+                //             ->where('user_id', Auth::user()->id)
+                //             ->pluck('shop_name', 'id')
+                //     )
+                //     ->searchable(),
             ])
             ->recordActions([
                 ViewAction::make()

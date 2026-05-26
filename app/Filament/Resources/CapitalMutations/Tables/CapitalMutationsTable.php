@@ -52,7 +52,7 @@ class CapitalMutationsTable
 
                 TextColumn::make('amount')
                     ->label('Nominal (IDR)')
-                    ->money('IDR', locale: 'id')
+                    ->money('IDR', locale: 'id_ID', decimalPlaces: 0)
                     ->sortable(),
 
                 TextColumn::make('source')

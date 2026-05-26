@@ -46,11 +46,18 @@ class CapitalMutationForm
 
                         TextInput::make('amount')
                             ->label('Nominal (IDR)')
-                            ->numeric()
                             ->required()
                             ->prefix('Rp')
-                            // Masking mata uang agar ketikan otomatis ada separator ribuan
-                            ->mask(RawJs::make('$money($input, \',\', \'.\', 0)')),
+                            ->extraInputAttributes(['type' => 'text', 'inputmode' => 'numeric'])
+                            ->mask(RawJs::make('$money($input, \'.\', \',\', 0)'))
+
+                            // PERBAIKAN: Buang koma (,), atau bersihkan semua karakter non-digit agar aman 100%
+                            ->dehydrateStateUsing(function ($state) {
+                                if (! $state) return null;
+
+                                // Menghapus semua karakter selain angka murni (termasuk titik atau koma)
+                                return preg_replace('/[^0-9]/', '', $state);
+                            }),
                     ]),
 
                 Section::make('Detail Aliran Dana & Status')

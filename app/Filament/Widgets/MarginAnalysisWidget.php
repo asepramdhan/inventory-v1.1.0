@@ -14,10 +14,9 @@ use Override;
 
 class MarginAnalysisWidget extends StatsOverviewWidget
 {
-    use InteractsWithPageFilters; // Penting: agar widget bisa baca filter dari Page
+    use InteractsWithPageFilters;
 
     protected ?string $pollingInterval = null;
-
     protected static bool $isLazy = true;
 
     #[Override]
@@ -31,15 +30,12 @@ class MarginAnalysisWidget extends StatsOverviewWidget
         $startDate = $this->filters['startDate'] ?? null;
         $endDate = $this->filters['endDate'] ?? null;
         $storeId = $this->filters['storeId'] ?? null;
-        $userId = Auth::user()->id;
+        $userId = Auth::id();
 
         $chartEndDate = $endDate ? Carbon::parse($endDate) : now();
+        $period = collect(range(6, 0))->map(fn($days) => (clone $chartEndDate)->subDays($days)->format('Y-m-d'));
 
-        $period = collect(range(6, 0))->map(function ($days) use ($chartEndDate) {
-            return (clone $chartEndDate)->subDays($days)->format('Y-m-d');
-        });
-
-        // 1. Ambil Total Biaya Iklan (Ads Costs) sesuai filter
+        // 1. Total Biaya Iklan
         $totalAdsCost = AdsCost::query()
             ->where('user_id', $userId)
             ->when($startDate, fn($q) => $q->whereDate('created_at', '>=', $startDate))
@@ -47,11 +43,12 @@ class MarginAnalysisWidget extends StatsOverviewWidget
             ->when($storeId, fn($q) => $q->where('store_id', $storeId))
             ->sum('amount');
 
-        // 2. Data Utama Item (Omset, HPP, Admin)
+        // 2. Data Item (Omset, HPP, Admin) - KECUALIKAN YANG DIBATALKAN
         $itemData = TransactionItem::query()
             ->join('transactions', 'transaction_items.transaction_id', '=', 'transactions.id')
             ->join('stores', 'transactions.store_id', '=', 'stores.id')
             ->where('transactions.user_id', $userId)
+            ->where('transactions.status', '!=', 'dibatalkan') // <--- Proteksi keuangan sepihak
             ->when($startDate, fn($q) => $q->whereDate('transactions.created_at', '>=', $startDate))
             ->when($endDate, fn($q) => $q->whereDate('transactions.created_at', '<=', $endDate))
             ->when($storeId, fn($q) => $q->where('transactions.store_id', $storeId))
@@ -61,10 +58,11 @@ class MarginAnalysisWidget extends StatsOverviewWidget
                 SUM((transaction_items.price * transaction_items.quantity) * (stores.admin_fee / 100)) as total_admin_fee
             ')->first();
 
-        // 3. Data Transaksi (Biaya Proses)
+        // 3. Data Transaksi (Biaya Proses) - KECUALIKAN YANG DIBATALKAN
         $transactionData = Transaction::query()
             ->join('stores', 'transactions.store_id', '=', 'stores.id')
             ->where('transactions.user_id', $userId)
+            ->where('transactions.status', '!=', 'dibatalkan')
             ->when($startDate, fn($q) => $q->whereDate('transactions.created_at', '>=', $startDate))
             ->when($endDate, fn($q) => $q->whereDate('transactions.created_at', '<=', $endDate))
             ->when($storeId, fn($q) => $q->where('transactions.store_id', $storeId))
@@ -77,16 +75,16 @@ class MarginAnalysisWidget extends StatsOverviewWidget
         $procFee = (float) $transactionData->total_proc_fee;
         $adsFee = (float) $totalAdsCost;
 
-        // RUMUS: Omset - HPP - Admin - Proses - Iklan
         $margin = $omset - $hpp - $adminFee - $procFee - $adsFee;
         $percentage = $omset > 0 ? ($margin / $omset) * 100 : 0;
 
-        // 4. DATA CHART DINAMIS (Trend Margin dikurangi Iklan Harian)
+        // 4. DATA CHART TREND (7 Hari Terakhir)
         $marginChartTrend = $period->map(function ($date) use ($userId, $storeId) {
             $dayItems = TransactionItem::query()
                 ->join('transactions', 'transaction_items.transaction_id', '=', 'transactions.id')
                 ->join('stores', 'transactions.store_id', '=', 'stores.id')
                 ->where('transactions.user_id', $userId)
+                ->where('transactions.status', '!=', 'dibatalkan')
                 ->whereDate('transactions.created_at', $date)
                 ->when($storeId, fn($q) => $q->where('transactions.store_id', $storeId))
                 ->selectRaw('
@@ -98,11 +96,11 @@ class MarginAnalysisWidget extends StatsOverviewWidget
             $dayProc = Transaction::query()
                 ->join('stores', 'transactions.store_id', '=', 'stores.id')
                 ->where('transactions.user_id', $userId)
+                ->where('transactions.status', '!=', 'dibatalkan')
                 ->whereDate('transactions.created_at', $date)
                 ->when($storeId, fn($q) => $q->where('transactions.store_id', $storeId))
                 ->sum('stores.processing_fee');
 
-            // Hitung iklan hari ini
             $dayAds = AdsCost::where('user_id', $userId)
                 ->whereDate('created_at', $date)
                 ->when($storeId, fn($q) => $q->where('store_id', $storeId))
@@ -113,26 +111,27 @@ class MarginAnalysisWidget extends StatsOverviewWidget
 
         $omsetChartTrend = $period->map(function ($date) use ($userId, $storeId) {
             return Transaction::where('user_id', $userId)
+                ->where('status', '!=', 'dibatalkan')
                 ->whereDate('created_at', $date)
                 ->when($storeId, fn($q) => $q->where('store_id', $storeId))
                 ->sum('total_price');
         })->toArray();
 
         return [
-            Stat::make('Omset Kotor', 'Rp ' . number_format($omset, 0, ',', '.'))
-                ->description($endDate ? 'Trend hingga ' . $chartEndDate->format('d M') : 'Trend 7 hari terakhir')
+            Stat::make('Omset Bersih', 'Rp ' . number_format($omset, 0, ',', '.'))
+                ->description($endDate ? 'Hingga ' . $chartEndDate->format('d M') : 'Trend 7 hari')
                 ->chart($omsetChartTrend)
                 ->color('info'),
 
-            Stat::make('Margin Keuntungan', 'Rp ' . number_format($margin, 0, ',', '.'))
-                ->description($adsFee > 0 ? 'Termasuk biaya iklan Rp ' . number_format($adsFee, 0, ',', '.') : 'Profit bersih periode ini')
+            Stat::make('Margin Bersih (EBIT)', 'Rp ' . number_format($margin, 0, ',', '.'))
+                ->description($adsFee > 0 ? 'Potong iklan Rp ' . number_format($adsFee, 0, ',', '.') : 'Profit bersih real')
                 ->descriptionIcon($margin >= 0 ? 'heroicon-m-arrow-trending-up' : 'heroicon-m-arrow-trending-down')
                 ->chart($marginChartTrend)
                 ->color($margin >= 0 ? 'success' : 'danger'),
 
-            Stat::make('Profitabilitas', number_format($percentage, 1, ',', '.') . '%')
-                ->description($percentage > 15 ? 'Performa sehat' : 'Margin tipis')
-                ->color($percentage > 15 ? 'success' : ($percentage > 0 ? 'warning' : 'danger')),
+            Stat::make('Net Profit Margin', number_format($percentage, 1, ',', '.') . '%')
+                ->description($percentage > 20 ? 'Performa sehat' : ($percentage > 10 ? 'Margin aman' : 'Margin kritis'))
+                ->color($percentage > 20 ? 'success' : ($percentage > 10 ? 'warning' : 'danger')),
         ];
     }
 }
