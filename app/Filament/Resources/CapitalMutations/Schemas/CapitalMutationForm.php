@@ -47,6 +47,7 @@ class CapitalMutationForm
                         TextInput::make('amount')
                             ->label('Nominal (IDR)')
                             ->required()
+                            ->autofocus()
                             ->prefix('Rp')
                             ->extraInputAttributes(['type' => 'text', 'inputmode' => 'numeric'])
                             ->mask(RawJs::make('$money($input, \'.\', \',\', 0)'))

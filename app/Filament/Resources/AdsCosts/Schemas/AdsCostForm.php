@@ -7,6 +7,7 @@ use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
+use Filament\Support\RawJs;
 use Illuminate\Support\Facades\Auth;
 
 class AdsCostForm
@@ -33,9 +34,18 @@ class AdsCostForm
                 TextInput::make('amount')
                     ->label('Biaya Iklan')
                     ->required()
+                    ->autofocus()
                     ->columnSpan(2)
-                    ->numeric()
-                    ->default(0.0),
+                    ->extraInputAttributes(['type' => 'text', 'inputmode' => 'numeric'])
+                    ->mask(RawJs::make('$money($input, \'.\', \',\', 0)'))
+
+                    // PERBAIKAN: Buang koma (,), atau bersihkan semua karakter non-digit agar aman 100%
+                    ->dehydrateStateUsing(function ($state) {
+                        if (! $state) return null;
+
+                        // Menghapus semua karakter selain angka murni (termasuk titik atau koma)
+                        return preg_replace('/[^0-9]/', '', $state);
+                    }),
             ])
             ->columns(6);
     }

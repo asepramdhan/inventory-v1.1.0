@@ -3,6 +3,7 @@
 namespace App\Filament\Exports;
 
 use App\Models\FinancialLog;
+use Carbon\Carbon;
 use Filament\Actions\Exports\ExportColumn;
 use Filament\Actions\Exports\Exporter;
 use Filament\Actions\Exports\Models\Export;
@@ -15,20 +16,18 @@ class FinancialLogExporter extends Exporter
     public static function getColumns(): array
     {
         return [
-            ExportColumn::make('id')
-                ->label('ID Catatan')
-                ->enabledByDefault(false)
-                ->state(function (FinancialLog $record): string {
-                    $date = $record->created_at ? $record->created_at->format('Ym') : now()->format('Ym');
-                    $paddedId = str_pad($record->id, 4, '0', STR_PAD_LEFT);
-                    return "FIN-{$date}-{$paddedId}";
-                }),
+            // ExportColumn::make('id')
+            //     ->label('ID Catatan')
+            //     ->enabledByDefault(false)
+            //     ->state(function (FinancialLog $record): string {
+            //         $date = $record->created_at ? $record->created_at->format('Ym') : now()->format('Ym');
+            //         $paddedId = str_pad($record->id, 4, '0', STR_PAD_LEFT);
+            //         return "FIN-{$date}-{$paddedId}";
+            //     }),
 
-            ExportColumn::make('date')
+            ExportColumn::make('created_at')
                 ->label('Tanggal Transaksi')
-                ->state(function (FinancialLog $record): string {
-                    return $record->date ? \Carbon\Carbon::parse($record->date)->format('Y-m-d') : '-';
-                }),
+                ->formatStateUsing(fn($state): string => Carbon::parse($state)->format('d-m-Y H:i')),
 
             ExportColumn::make('store.shop_name')
                 ->label('Nama Toko')
@@ -36,15 +35,15 @@ class FinancialLogExporter extends Exporter
                     return $record->store?->shop_name ?? '-';
                 }),
 
-            ExportColumn::make('type')
-                ->label('Tipe Keuangan')
-                ->state(function (FinancialLog $record): string {
-                    return match ($record->type) {
-                        'income' => 'Pemasukan',
-                        'expense' => 'Pengeluaran',
-                        default => ucfirst($record->type),
-                    };
-                }),
+            // ExportColumn::make('type')
+            //     ->label('Tipe Keuangan')
+            //     ->state(function (FinancialLog $record): string {
+            //         return match ($record->type) {
+            //             'income' => 'Pemasukan',
+            //             'expense' => 'Pengeluaran',
+            //             default => ucfirst($record->type),
+            //         };
+            //     }),
 
             ExportColumn::make('category')
                 ->label('Kategori')
@@ -56,16 +55,16 @@ class FinancialLogExporter extends Exporter
                     };
                 }),
 
-            ExportColumn::make('payment_method')
-                ->label('Metode Pembayaran')
-                ->state(function (FinancialLog $record): string {
-                    return match ($record->payment_method) {
-                        'cash' => 'Cash',
-                        'weekly_term' => 'Tempo Mingguan',
-                        'monthly_term' => 'Tempo Bulanan',
-                        default => ucfirst($record->payment_method),
-                    };
-                }),
+            // ExportColumn::make('payment_method')
+            //     ->label('Metode Pembayaran')
+            //     ->state(function (FinancialLog $record): string {
+            //         return match ($record->payment_method) {
+            //             'cash' => 'Cash',
+            //             'weekly_term' => 'Tempo Mingguan',
+            //             'monthly_term' => 'Tempo Bulanan',
+            //             default => ucfirst($record->payment_method),
+            //         };
+            //     }),
 
             ExportColumn::make('payment_status')
                 ->label('Status Pembayaran')
@@ -77,39 +76,26 @@ class FinancialLogExporter extends Exporter
                     };
                 }),
 
-            ExportColumn::make('due_date')
-                ->label('Jatuh Tempo')
-                ->state(function (FinancialLog $record): string {
-                    return $record->due_date ? \Carbon\Carbon::parse($record->due_date)->format('Y-m-d') : '-';
-                }),
+            // ExportColumn::make('due_date')
+            //     ->label('Jatuh Tempo')
+            //     ->state(function (FinancialLog $record): string {
+            //         return $record->due_date ? \Carbon\Carbon::parse($record->due_date)->format('Y-m-d') : '-';
+            //     }),
 
             // Pastikan amount diekspor sebagai numerik murni tanpa simbol Rp agar Excel tidak bingung
             ExportColumn::make('amount')
                 ->label('Nominal (IDR)')
-                ->state(function (FinancialLog $record) {
-                    return $record->amount;
-                }),
+                ->formatStateUsing(fn(float $state): string => Number::format($state, locale: 'id')),
 
             // PENTING: Membersihkan enter (\n atau \r) agar deskripsi panjang tidak merusak baris Excel
             ExportColumn::make('description')
                 ->label('Keterangan / Catatan')
-                ->state(function (FinancialLog $record): string {
-                    if (! $record->description) return '-';
+                ->listAsJson(),
+            // ->formatStateUsing(fn(string $state): string => str_replace(["\n", "\r"], ' ', $state)),
 
-                    // Ganti enter/baris baru menjadi spasi atau penanda koma ( , ) agar tetap satu baris di CSV/Excel
-                    $cleanText = str_replace(["\r", "\n"], " ", $record->description);
-
-                    // Opsional: Buang spasi ganda yang berdempetan akibat pembersihan enter tadi
-                    return preg_replace('/\s+/', ' ', trim($cleanText));
-                }),
-
-            ExportColumn::make('reference_id')
-                ->label('ID Referensi')
-                ->enabledByDefault(false),
-
-            ExportColumn::make('created_at')
-                ->label('Waktu Dibuat')
-                ->enabledByDefault(false),
+            // ExportColumn::make('reference_id')
+            //     ->label('ID Referensi')
+            //     ->enabledByDefault(false),
         ];
     }
 

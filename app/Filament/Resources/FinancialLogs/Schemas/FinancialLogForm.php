@@ -11,6 +11,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
+use Filament\Support\RawJs;
 use Illuminate\Support\Facades\Auth;
 
 class FinancialLogForm
@@ -79,8 +80,17 @@ class FinancialLogForm
                         TextInput::make('amount')
                             ->label('Nominal (Rupiah)')
                             ->prefix('Rp')
-                            ->numeric()
-                            ->required(),
+                            ->required()
+                            ->extraInputAttributes(['type' => 'text', 'inputmode' => 'numeric'])
+                            ->mask(RawJs::make('$money($input, \'.\', \',\', 0)'))
+
+                            // PERBAIKAN: Buang koma (,), atau bersihkan semua karakter non-digit agar aman 100%
+                            ->dehydrateStateUsing(function ($state) {
+                                if (! $state) return null;
+
+                                // Menghapus semua karakter selain angka murni (termasuk titik atau koma)
+                                return preg_replace('/[^0-9]/', '', $state);
+                            }),
 
                         // Tampilkan pilihan termin hanya jika tipenya 'expense' dan kategorinya 'Stock'
                         Select::make('payment_method')
@@ -113,6 +123,7 @@ class FinancialLogForm
                         Textarea::make('description')
                             ->label('Catatan Tambahan')
                             ->placeholder('Contoh: Sisa pembayaran supplier baju koko 50pcs')
+                            ->autofocus()
                             ->columnSpanFull(),
                     ])
             ]);

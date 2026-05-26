@@ -70,7 +70,8 @@ class TransactionForm
 
                                 TextInput::make('order_number')
                                     ->label('Nomor Pesanan')
-                                    ->placeholder('Contoh: ORD-2026001'),
+                                    ->placeholder('Contoh: ORD-2026001')
+                                    ->autofocus(),
 
                                 Select::make('status')
                                     ->label('Status Pesanan')

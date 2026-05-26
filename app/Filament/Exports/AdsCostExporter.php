@@ -3,6 +3,7 @@
 namespace App\Filament\Exports;
 
 use App\Models\AdsCost;
+use Carbon\Carbon;
 use Filament\Actions\Exports\ExportColumn;
 use Filament\Actions\Exports\Exporter;
 use Filament\Actions\Exports\Models\Export;
@@ -15,12 +16,14 @@ class AdsCostExporter extends Exporter
     public static function getColumns(): array
     {
         return [
+            ExportColumn::make('created_at')
+                ->label('Tanggal Dibuat')
+                ->formatStateUsing(fn($state): string => Carbon::parse($state)->format('d-m-Y H:i')),
             ExportColumn::make('store.shop_name')
                 ->label('Nama Toko'),
             ExportColumn::make('amount')
-                ->label('Biaya Iklan'),
-            ExportColumn::make('created_at')
-                ->label('Tanggal Dibuat'),
+                ->label('Biaya Iklan')
+                ->formatStateUsing(fn(float $state): string => Number::format($state, locale: 'id')),
         ];
     }
 

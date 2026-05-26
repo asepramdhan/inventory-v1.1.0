@@ -9,6 +9,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
@@ -139,7 +140,7 @@ class FinancialLogsTable
                         'Stock' => 'Pemasukan Barang',
                         'Ads' => 'Iklan',
                     ]),
-            ])
+            ], layout: FiltersLayout::Modal)
             ->recordActions([
                 Action::make('markAsPaid')
                     ->label('Set Lunas')

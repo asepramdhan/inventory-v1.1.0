@@ -8,6 +8,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Filament\Support\RawJs;
 use Illuminate\Support\Facades\Auth;
 
 class StoreForm
@@ -32,6 +33,7 @@ class StoreForm
                     ->required(),
                 TextInput::make('shop_name')
                     ->label('Nama Toko')
+                    ->autofocus()
                     ->required(),
                 Section::make()
                     ->schema([
@@ -42,15 +44,34 @@ class StoreForm
                             ->required(),
                         TextInput::make('processing_fee')
                             ->label('Biaya Proses Per Pesanan')
-                            ->numeric()
                             ->columnSpan(1)
-                            ->required(),
+                            ->required()
+                            ->extraInputAttributes(['type' => 'text', 'inputmode' => 'numeric'])
+                            ->mask(RawJs::make('$money($input, \'.\', \',\', 0)'))
+
+                            // PERBAIKAN: Buang koma (,), atau bersihkan semua karakter non-digit agar aman 100%
+                            ->dehydrateStateUsing(function ($state) {
+                                if (! $state) return null;
+
+                                // Menghapus semua karakter selain angka murni (termasuk titik atau koma)
+                                return preg_replace('/[^0-9]/', '', $state);
+                            }),
                         TextInput::make('extra_fee')
-                            ->label('Biaya Lain (% atau nominal)')
+                            ->label('Biaya Lainnya (nominal)')
+                            ->columnSpan(1)
                             ->numeric()
                             ->default(0)
-                            ->columnSpan(1)
                             ->required(),
+                        // ->extraInputAttributes(['type' => 'text', 'inputmode' => 'numeric'])
+                        // ->mask(RawJs::make('$money($input, \'.\', \',\', 0)'))
+
+                        // // PERBAIKAN: Buang koma (,), atau bersihkan semua karakter non-digit agar aman 100%
+                        // ->dehydrateStateUsing(function ($state) {
+                        //     if (! $state) return null;
+
+                        //     // Menghapus semua karakter selain angka murni (termasuk titik atau koma)
+                        //     return preg_replace('/[^0-9]/', '', $state);
+                        // }),
                     ])
                     ->columns(3)
                     ->columnSpanFull()

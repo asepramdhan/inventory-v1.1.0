@@ -2,9 +2,11 @@
 
 namespace App\Filament\Resources\CapitalMutations\Pages;
 
+use App\Filament\Exports\CapitalMutationExporter;
 use App\Filament\Resources\CapitalMutations\CapitalMutationResource;
 use App\Models\CapitalMutation;
 use Filament\Actions\CreateAction;
+use Filament\Actions\ExportAction;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Schemas\Components\Tabs\Tab;
 use Illuminate\Contracts\Support\Htmlable;
@@ -28,6 +30,10 @@ class ListCapitalMutations extends ListRecords
         return [
             CreateAction::make()
                 ->label('Buat Mutasi Baru'),
+            ExportAction::make()
+                ->exporter(CapitalMutationExporter::class)
+                ->label('Ekspor Data')
+                ->icon('heroicon-o-arrow-up-on-square'),
         ];
     }
 
