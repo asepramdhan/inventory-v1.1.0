@@ -20,7 +20,6 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Enums\FiltersLayout;
-use Filament\Tables\Grouping\Group;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -30,19 +29,20 @@ class TransactionsTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->filtersLayout(FiltersLayout::AboveContentCollapsible)
-            ->filtersFormColumns(3)
+            // ->filtersLayout(FiltersLayout::AboveContentCollapsible)
+            ->filtersFormColumns(2)
+            // ->filtersFormWidth(Width::FourExtraLarge)
             ->deferFilters(false)
             ->persistFiltersInSession(true)
             ->persistSortInSession(true)
             ->deferLoading()
-            ->groups([
-                Group::make('status')
-                    ->label('Status'),
-                Group::make('store.shop_name')
-                    ->label('Toko'),
-            ])
-            ->defaultGroup('status')
+            // ->groups([
+            //     Group::make('status')
+            //         ->label('Status'),
+            //     Group::make('store.shop_name')
+            //         ->label('Toko'),
+            // ])
+            // ->defaultGroup('status')
             ->columns([
                 ImageColumn::make('items.product.image')
                     ->label('Gambar')
@@ -166,18 +166,7 @@ class TransactionsTable
                         }
                         return $indicators;
                     }),
-                SelectFilter::make('status')
-                    ->label('Status Pesanan')
-                    ->options([
-                        'pending' => 'Menunggu Pembayaran',
-                        'diproses' => 'Sedang Diproses',
-                        'dikirim' => 'Dalam Pengiriman',
-                        'selesai' => 'Selesai',
-                        'dibatalkan' => 'Dibatalkan',
-                    ])
-                    ->indicator('Status') // Menampilkan label filter saat aktif di atas tabel
-                    ->native(false), // Menggunakan interface dropdown Filament yang lebih modern
-            ])
+            ], layout: FiltersLayout::Modal)
             ->recordActions([
                 ActionGroup::make([
                     Action::make('setStatuSent')
