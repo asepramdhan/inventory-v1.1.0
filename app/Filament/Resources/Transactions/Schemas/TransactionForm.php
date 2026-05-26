@@ -136,7 +136,7 @@ class TransactionForm
                             ->label('Harga Jual')
                             ->required()
                             ->numeric()
-                            ->prefix('Rp ')
+                            ->prefix('Rp')
                             ->live()
                             // Memicu hitung total saat harga satuan diubah manual
                             ->afterStateUpdated(function ($component) {
