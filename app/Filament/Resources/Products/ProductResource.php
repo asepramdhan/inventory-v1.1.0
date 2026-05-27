@@ -6,7 +6,6 @@ use App\Filament\Resources\Products\Pages\ManageProducts;
 use App\Models\Category;
 use App\Models\Product;
 use BackedEnum;
-use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;

@@ -4,47 +4,37 @@ namespace App\Filament\Resources\Transactions\Pages;
 
 use App\Filament\Exports\TransactionExporter;
 use App\Filament\Resources\Transactions\TransactionResource;
-// use App\Filament\Resources\Transactions\Widgets\TransactionWidget;
 use App\Models\Transaction;
+use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Actions\ExportAction;
-use Filament\Pages\Concerns\ExposesTableToWidgets;
-use Filament\Resources\Pages\ListRecords;
+use Filament\Resources\Pages\ManageRecords;
 use Filament\Schemas\Components\Tabs\Tab;
-use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Facades\Auth;
 use Override;
 
-class ListTransactions extends ListRecords
+class ManageTransactions extends ManageRecords
 {
-    use ExposesTableToWidgets;
-
     protected static string $resource = TransactionResource::class;
 
-    protected static ?string $title = 'Transaksi Penjualan';
-
-    #[Override]
-    public function getSubheading(): string|Htmlable|null
-    {
-        return 'Catat penjualan online dan offline harian kamu.';
-    }
+    protected static ?string $title = 'Kelola Transaksi';
 
     protected function getHeaderActions(): array
     {
         return [
             CreateAction::make()
-                ->label('Buat Transaksi Baru'),
+                ->label('Tambah Transaksi')
+                ->modalHeading('Tambah Transaksi Baru')
+                ->modalDescription('Pastikan nama transaksi belum terdaftar sebelumnya.')
+                ->modalWidth('2xl')
+                ->modalSubmitActionLabel('Tambah')
+                ->createAnotherAction(fn(Action $action) => $action->label('Tambah & Buat Lagi'))
+                ->icon('heroicon-o-plus-circle')
+                ->slideOver(),
+
             ExportAction::make()
                 ->exporter(TransactionExporter::class)
                 ->label('Ekspor'),
-        ];
-    }
-
-    #[Override]
-    protected function getHeaderWidgets(): array
-    {
-        return [
-            // TransactionWidget::class,
         ];
     }
 
