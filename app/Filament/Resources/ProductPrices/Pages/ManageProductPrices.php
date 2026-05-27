@@ -5,30 +5,31 @@ namespace App\Filament\Resources\ProductPrices\Pages;
 use App\Filament\Resources\ProductPrices\ProductPriceResource;
 use App\Models\ProductPrice;
 use App\Models\Store;
+use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
-use Filament\Resources\Pages\ListRecords;
+use Filament\Resources\Pages\ManageRecords;
 use Filament\Schemas\Components\Tabs\Tab;
-use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Facades\Auth;
 use Override;
 
-class ListProductPrices extends ListRecords
+class ManageProductPrices extends ManageRecords
 {
     protected static string $resource = ProductPriceResource::class;
 
-    protected static ?string $title = 'Harga Produk';
-
-    #[Override]
-    public function getSubheading(): string|Htmlable|null
-    {
-        return 'Kelola struktur modal dasar (HPP) produk di setiap toko Anda.';
-    }
+    protected static ?string $title = 'Kelola HPP Produk';
 
     protected function getHeaderActions(): array
     {
         return [
             CreateAction::make()
-                ->label('Buat HPP Baru'),
+                ->label('Tambah HPP Produk')
+                ->modalHeading('Tambah HPP Produk')
+                ->modalDescription('Pastikan nama produk belum terdaftar sebelumnya.')
+                ->modalWidth('lg')
+                ->modalSubmitActionLabel('Tambah')
+                ->createAnotherAction(fn(Action $action) => $action->label('Tambah & Buat Lagi'))
+                ->icon('heroicon-o-plus-circle')
+                ->slideOver(),
         ];
     }
 

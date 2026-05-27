@@ -25,7 +25,7 @@ class ManageProducts extends ManageRecords
                 ->modalHeading('Tambah Produk Baru')
                 ->modalDescription('Pastikan nama produk belum terdaftar sebelumnya.')
                 ->modalWidth('lg')
-                ->modalSubmitActionLabel('Tambah Produk')
+                ->modalSubmitActionLabel('Tambah')
                 ->createAnotherAction(fn(Action $action) => $action->label('Tambah & Buat Lagi'))
                 ->icon('heroicon-o-plus-circle')
                 ->slideOver(),

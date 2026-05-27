@@ -26,7 +26,7 @@ class ManageCategories extends ManageRecords
                 ->modalHeading('Tambah Kategori Produk') // Judul di atas modal
                 ->modalDescription('Pastikan nama kategori belum terdaftar sebelumnya.') // Deskripsi kecil di bawah judul
                 ->modalWidth('md') // Mengatur lebar modal (ExtraSmall, Small, Medium, Large, sampai 7Xl / Full)
-                ->modalSubmitActionLabel('Buat Kategori') // Mengubah teks tombol "Create"
+                ->modalSubmitActionLabel('Tambah') // Mengubah teks tombol "Create"
                 ->createAnotherAction(fn(Action $action) => $action->label('Tambah & Buat Lagi'))
                 ->icon('heroicon-o-plus-circle') // Menambahkan ikon di tombol pemicu
                 ->slideOver(),

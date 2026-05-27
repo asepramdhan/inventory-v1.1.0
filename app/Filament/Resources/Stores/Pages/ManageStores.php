@@ -25,7 +25,7 @@ class ManageStores extends ManageRecords
                 ->modalHeading('Tambah Toko')
                 ->modalDescription('Pastikan nama toko belum terdaftar sebelumnya.')
                 ->modalWidth('lg')
-                ->modalSubmitActionLabel('Buat Toko')
+                ->modalSubmitActionLabel('Tambah')
                 ->createAnotherAction(fn(Action $action) => $action->label('Tambah & Buat Lagi'))
                 ->icon('heroicon-o-plus-circle')
                 ->slideOver(),

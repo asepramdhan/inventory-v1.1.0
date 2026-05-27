@@ -21,6 +21,7 @@ use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Support\RawJs;
@@ -97,27 +98,30 @@ class ProductResource extends Resource
     {
         return $schema
             ->components([
-                ImageEntry::make('image')->label('Gambar')
-                    ->columnSpanFull()
-                    ->imageSize(250),
-                TextEntry::make('name')->label('Nama Produk'),
-                TextEntry::make('category.name')->label('Kategori')
-                    ->badge()
-                    ->formatStateUsing(fn($state) => ucwords($state)),
-                TextEntry::make('sku')->label('SKU Produk'),
-                TextEntry::make('price')->label('Harga')
-                    ->money('IDR', locale: 'id_ID', decimalPlaces: 0),
-                TextEntry::make('created_at')
-                    ->label('Dibuat')
-                    ->dateTime('d M y H:i')
-                    ->timezone('Asia/Jakarta'),
-                TextEntry::make('updated_at')
-                    ->label('Diubah')
-                    ->dateTime('d M y H:i')
-                    ->timezone('Asia/Jakarta'),
-                IconEntry::make('status')->label('Status')
-                    ->color(fn($get) => $get('status') ? 'success' : 'danger')
-                    ->icon(fn($get) => $get('status') ? 'heroicon-o-check-circle' : 'heroicon-o-x-circle'),
+                Grid::make(['default' => 2])->columnSpanFull()
+                    ->schema([
+                        ImageEntry::make('image')->label('Gambar')
+                            ->columnSpanFull()
+                            ->imageSize(250),
+                        TextEntry::make('name')->label('Nama Produk'),
+                        TextEntry::make('category.name')->label('Kategori')
+                            ->badge()
+                            ->formatStateUsing(fn($state) => ucwords($state)),
+                        TextEntry::make('sku')->label('SKU Produk'),
+                        TextEntry::make('price')->label('Harga')
+                            ->money('IDR', locale: 'id_ID', decimalPlaces: 0),
+                        TextEntry::make('created_at')
+                            ->label('Dibuat')
+                            ->dateTime('d M y H:i')
+                            ->timezone('Asia/Jakarta'),
+                        TextEntry::make('updated_at')
+                            ->label('Diubah')
+                            ->dateTime('d M y H:i')
+                            ->timezone('Asia/Jakarta'),
+                        IconEntry::make('status')->label('Status')
+                            ->color(fn($get) => $get('status') ? 'success' : 'danger')
+                            ->icon(fn($get) => $get('status') ? 'heroicon-o-check-circle' : 'heroicon-o-x-circle'),
+                    ])
             ]);
     }
 
@@ -165,20 +169,21 @@ class ProductResource extends Resource
                 //
             ])
             ->recordActions([
-                ActionGroup::make([
-                    ViewAction::make()
-                        ->modalHeading('Detail Produk')
-                        ->modalDescription('Detail produk marketplace toko Anda.')
-                        ->modalWidth('lg')
-                        ->slideOver(),
-                    EditAction::make()
-                        ->modalHeading('Edit Produk')
-                        ->modalDescription('Pastikan nama produk belum terdaftar sebelumnya.')
-                        ->modalWidth('lg')
-                        ->slideOver(),
-                    DeleteAction::make()
-                        ->modalHeading('Hapus Produk'),
-                ])
+                ViewAction::make()
+                    ->iconButton()
+                    ->modalHeading('Detail Produk')
+                    ->modalDescription('Detail produk marketplace toko Anda.')
+                    ->modalWidth('lg')
+                    ->slideOver(),
+                EditAction::make()
+                    ->iconButton()
+                    ->modalHeading('Edit Produk')
+                    ->modalDescription('Pastikan nama produk belum terdaftar sebelumnya.')
+                    ->modalWidth('lg')
+                    ->slideOver(),
+                DeleteAction::make()
+                    ->iconButton()
+                    ->modalHeading('Hapus Produk'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

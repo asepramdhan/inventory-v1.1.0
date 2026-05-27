@@ -18,6 +18,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -114,27 +115,33 @@ class StoreResource extends Resource
     {
         return $schema
             ->components([
-                TextEntry::make('platform')->label('Platform')
-                    ->formatStateUsing(fn($state) => ucwords($state)),
-                TextEntry::make('shop_name')->label('Nama Toko')
-                    ->formatStateUsing(fn($state) => ucwords($state)),
-                TextEntry::make('admin_fee')->label('Biaya Admin (%)')
-                    ->suffix('%'),
-                TextEntry::make('processing_fee')->label('Biaya Proses Per Pesanan')
-                    ->money('IDR', locale: 'id_ID', decimalPlaces: 0),
-                TextEntry::make('extra_fee')->label('Biaya Lainnya')
-                    ->money('IDR', locale: 'id_ID', decimalPlaces: 0),
-                IconEntry::make('status')->label('Status')
-                    ->color(fn($get) => $get('status') ? 'success' : 'danger')
-                    ->icon(fn($get) => $get('status') ? 'heroicon-o-check-circle' : 'heroicon-o-x-circle'),
-                TextEntry::make('created_at')
-                    ->label('Dibuat')
-                    ->dateTime('d M y H:i')
-                    ->timezone('Asia/Jakarta'),
-                TextEntry::make('updated_at')
-                    ->label('Diubah')
-                    ->dateTime('d M y H:i')
-                    ->timezone('Asia/Jakarta'),
+                Grid::make([
+                    'default' => 2,
+                ])
+                    ->columnSpanFull()
+                    ->schema([
+                        TextEntry::make('platform')->label('Platform')
+                            ->formatStateUsing(fn($state) => ucwords($state)),
+                        TextEntry::make('shop_name')->label('Nama Toko')
+                            ->formatStateUsing(fn($state) => ucwords($state)),
+                        TextEntry::make('admin_fee')->label('Biaya Admin (%)')
+                            ->suffix('%'),
+                        TextEntry::make('processing_fee')->label('Biaya Proses Per Pesanan')
+                            ->money('IDR', locale: 'id_ID', decimalPlaces: 0),
+                        TextEntry::make('extra_fee')->label('Biaya Lainnya')
+                            ->money('IDR', locale: 'id_ID', decimalPlaces: 0),
+                        IconEntry::make('status')->label('Status')
+                            ->color(fn($get) => $get('status') ? 'success' : 'danger')
+                            ->icon(fn($get) => $get('status') ? 'heroicon-o-check-circle' : 'heroicon-o-x-circle'),
+                        TextEntry::make('created_at')
+                            ->label('Dibuat')
+                            ->dateTime('d M y H:i')
+                            ->timezone('Asia/Jakarta'),
+                        TextEntry::make('updated_at')
+                            ->label('Diubah')
+                            ->dateTime('d M y H:i')
+                            ->timezone('Asia/Jakarta'),
+                    ])
             ]);
     }
 
@@ -178,31 +185,27 @@ class StoreResource extends Resource
                     ])
                     ->alignment('center'),
                 ToggleColumn::make('status')
-                    ->label('Status')
-                    ->toggleable(),
-                TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->label('Status'),
             ])
             ->filters([
                 //
             ])
             ->recordActions([
-                ActionGroup::make([
-                    ViewAction::make()
-                        ->modalHeading('Detail Toko')
-                        ->modalDescription('Detail Toko Marketplace atau Toko Offline')
-                        ->modalWidth('lg')
-                        ->slideOver(),
-                    EditAction::make()
-                        ->modalHeading('Edit Toko')
-                        ->modalDescription('Pastikan nama toko belum terdaftar sebelumnya.')
-                        ->modalWidth('lg')
-                        ->slideOver(),
-                    DeleteAction::make()
-                        ->modalHeading('Hapus Toko'),
-                ])
+                ViewAction::make()
+                    ->iconButton()
+                    ->modalHeading('Detail Toko')
+                    ->modalDescription('Detail Toko Marketplace atau Toko Offline')
+                    ->modalWidth('lg')
+                    ->slideOver(),
+                EditAction::make()
+                    ->iconButton()
+                    ->modalHeading('Edit Toko')
+                    ->modalDescription('Pastikan nama toko belum terdaftar sebelumnya.')
+                    ->modalWidth('lg')
+                    ->slideOver(),
+                DeleteAction::make()
+                    ->iconButton()
+                    ->modalHeading('Hapus Toko'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

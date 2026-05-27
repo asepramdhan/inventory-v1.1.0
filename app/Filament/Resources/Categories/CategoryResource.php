@@ -16,6 +16,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
@@ -62,20 +63,23 @@ class CategoryResource extends Resource
     {
         return $schema
             ->components([
-                TextEntry::make('name')->label('Nama')
-                    ->formatStateUsing(fn($state) => ucwords($state)),
-                IconEntry::make('status')
-                    ->label('Status')
-                    ->color(fn($get) => $get('status') ? 'success' : 'danger')
-                    ->icon(fn($get) => $get('status') ? 'heroicon-o-check-circle' : 'heroicon-o-x-circle'),
-                TextEntry::make('created_at')
-                    ->label('Dibuat')
-                    ->dateTime('d M y H:i')
-                    ->timezone('Asia/Jakarta'),
-                TextEntry::make('updated_at')
-                    ->label('Diubah')
-                    ->dateTime('d M y H:i')
-                    ->timezone('Asia/Jakarta'),
+                Grid::make(['default' => 2])->columnSpanFull()
+                    ->schema([
+                        TextEntry::make('name')->label('Nama')
+                            ->formatStateUsing(fn($state) => ucwords($state)),
+                        IconEntry::make('status')
+                            ->label('Status')
+                            ->color(fn($get) => $get('status') ? 'success' : 'danger')
+                            ->icon(fn($get) => $get('status') ? 'heroicon-o-check-circle' : 'heroicon-o-x-circle'),
+                        TextEntry::make('created_at')
+                            ->label('Dibuat')
+                            ->dateTime('d M y H:i')
+                            ->timezone('Asia/Jakarta'),
+                        TextEntry::make('updated_at')
+                            ->label('Diubah')
+                            ->dateTime('d M y H:i')
+                            ->timezone('Asia/Jakarta'),
+                    ])
             ]);
     }
 
@@ -97,12 +101,7 @@ class CategoryResource extends Resource
                     ->formatStateUsing(fn($state) => ucwords($state))
                     ->searchable(),
                 ToggleColumn::make('status')
-                    ->label('Status')
-                    ->toggleable(),
-                TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->label('Status'),
             ])
             ->filters([
                 //
