@@ -4,41 +4,31 @@ namespace App\Filament\Resources\Stores\Pages;
 
 use App\Filament\Resources\Stores\StoreResource;
 use App\Models\Store;
+use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
-use Filament\Pages\Concerns\ExposesTableToWidgets;
-use Filament\Resources\Pages\ListRecords;
+use Filament\Resources\Pages\ManageRecords;
 use Filament\Schemas\Components\Tabs\Tab;
-use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Facades\Auth;
 use Override;
 
-class ListStores extends ListRecords
+class ManageStores extends ManageRecords
 {
-    use ExposesTableToWidgets;
-
     protected static string $resource = StoreResource::class;
 
-    protected static ?string $title = 'Pengaturan Toko';
+    protected static ?string $title = 'Kelola Toko';
 
-    #[Override]
-    public function getSubheading(): string|Htmlable|null
-    {
-        return 'Kelola toko penjualan online dan offline kamu.';
-    }
-
-    #[Override]
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make()->label('Buat Toko'),
-        ];
-    }
-
-    #[Override]
-    protected function getHeaderWidgets(): array
-    {
-        return [
-            // StoreWidget::class,
+            CreateAction::make()
+                ->label('Buat Toko Baru')
+                ->modalHeading('Tambah Toko')
+                ->modalDescription('Pastikan nama toko belum terdaftar sebelumnya.')
+                ->modalWidth('lg')
+                ->modalSubmitActionLabel('Buat Toko')
+                ->createAnotherAction(fn(Action $action) => $action->label('Tambah & Buat Lagi'))
+                ->icon('heroicon-o-plus-circle')
+                ->slideOver(),
         ];
     }
 

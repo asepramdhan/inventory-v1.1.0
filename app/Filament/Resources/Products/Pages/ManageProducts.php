@@ -4,40 +4,31 @@ namespace App\Filament\Resources\Products\Pages;
 
 use App\Filament\Resources\Products\ProductResource;
 use App\Models\Product;
+use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
-use Filament\Pages\Concerns\ExposesTableToWidgets;
-use Filament\Resources\Pages\ListRecords;
+use Filament\Resources\Pages\ManageRecords;
 use Filament\Schemas\Components\Tabs\Tab;
-use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Facades\Auth;
 use Override;
 
-class ListProducts extends ListRecords
+class ManageProducts extends ManageRecords
 {
-    use ExposesTableToWidgets;
-
     protected static string $resource = ProductResource::class;
 
-    protected static ?string $title = 'Master Produk';
-
-    #[Override]
-    public function getSubheading(): string|Htmlable|null
-    {
-        return 'Kelola inventori master produk';
-    }
+    protected static ?string $title = 'Kelola Produk';
 
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make()->label('Buat Produk'),
-        ];
-    }
-
-    #[Override]
-    protected function getHeaderWidgets(): array
-    {
-        return [
-            // ProductWidget::class,
+            CreateAction::make()
+                ->label('Tambah Produk')
+                ->modalHeading('Tambah Produk Baru')
+                ->modalDescription('Pastikan nama produk belum terdaftar sebelumnya.')
+                ->modalWidth('lg')
+                ->modalSubmitActionLabel('Tambah Produk')
+                ->createAnotherAction(fn(Action $action) => $action->label('Tambah & Buat Lagi'))
+                ->icon('heroicon-o-plus-circle')
+                ->slideOver(),
         ];
     }
 

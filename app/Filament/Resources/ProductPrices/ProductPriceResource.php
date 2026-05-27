@@ -51,6 +51,12 @@ class ProductPriceResource extends Resource
         ];
     }
 
+    #[Override]
+    public static function getNavigationBadge(): ?string
+    {
+        return 'Dev';
+    }
+
     public static function getPages(): array
     {
         return [

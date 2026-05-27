@@ -4,40 +4,32 @@ namespace App\Filament\Resources\Categories\Pages;
 
 use App\Filament\Resources\Categories\CategoryResource;
 use App\Models\Category;
+use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
-use Filament\Pages\Concerns\ExposesTableToWidgets;
-use Filament\Resources\Pages\ListRecords;
+use Filament\Resources\Pages\ManageRecords;
 use Filament\Schemas\Components\Tabs\Tab;
-use Illuminate\Contracts\Support\Htmlable;
+// use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Facades\Auth;
 use Override;
 
-class ListCategories extends ListRecords
+class ManageCategories extends ManageRecords
 {
-    use ExposesTableToWidgets;
-
     protected static string $resource = CategoryResource::class;
 
     protected static ?string $title = 'Kelola Kategori';
 
-    #[Override]
-    public function getSubheading(): string|Htmlable|null
-    {
-        return 'Kelola kategori produk Anda untuk mempermudah pengelompokan inventori.';
-    }
-
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make()->label('Buat Kategori'),
-        ];
-    }
-
-    #[Override]
-    protected function getHeaderWidgets(): array
-    {
-        return [
-            // CategoryWidget::class,
+            CreateAction::make()
+                ->label('Buat Kategori Baru')
+                ->modalHeading('Tambah Kategori Produk') // Judul di atas modal
+                ->modalDescription('Pastikan nama kategori belum terdaftar sebelumnya.') // Deskripsi kecil di bawah judul
+                ->modalWidth('md') // Mengatur lebar modal (ExtraSmall, Small, Medium, Large, sampai 7Xl / Full)
+                ->modalSubmitActionLabel('Buat Kategori') // Mengubah teks tombol "Create"
+                ->createAnotherAction(fn(Action $action) => $action->label('Tambah & Buat Lagi'))
+                ->icon('heroicon-o-plus-circle') // Menambahkan ikon di tombol pemicu
+                ->slideOver(),
         ];
     }
 
