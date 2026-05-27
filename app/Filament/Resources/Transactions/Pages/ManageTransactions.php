@@ -29,6 +29,7 @@ class ManageTransactions extends ManageRecords
                 ->modalWidth('2xl')
                 ->modalSubmitActionLabel('Tambah')
                 ->createAnotherAction(fn(Action $action) => $action->label('Tambah & Buat Lagi'))
+                ->preserveFormDataWhenCreatingAnother(fn(array $data) => $data)
                 ->icon('heroicon-o-plus-circle')
                 ->slideOver(),
 
