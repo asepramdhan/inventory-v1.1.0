@@ -5,31 +5,34 @@ namespace App\Filament\Resources\CapitalMutations\Pages;
 use App\Filament\Exports\CapitalMutationExporter;
 use App\Filament\Resources\CapitalMutations\CapitalMutationResource;
 use App\Models\CapitalMutation;
+use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Actions\ExportAction;
-use Filament\Resources\Pages\ListRecords;
+use Filament\Resources\Pages\ManageRecords;
 use Filament\Schemas\Components\Tabs\Tab;
-use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Facades\Auth;
 use Override;
 
-class ListCapitalMutations extends ListRecords
+class ManageCapitalMutations extends ManageRecords
 {
     protected static string $resource = CapitalMutationResource::class;
 
     protected static ?string $title = 'Mutasi Keuangan';
 
-    #[Override]
-    public function getSubheading(): string|Htmlable|null
-    {
-        return 'Kelola mutasi pembayaran dan penarikan';
-    }
-
     protected function getHeaderActions(): array
     {
         return [
             CreateAction::make()
-                ->label('Buat Mutasi Baru'),
+                ->label('Tambah Mutasi')
+                ->modalHeading('Tambah Mutasi Baru')
+                ->modalDescription('Pastikan nama mutasi belum terdaftar sebelumnya.')
+                ->modalWidth('2xl')
+                ->modalSubmitActionLabel('Tambah')
+                ->createAnotherAction(fn(Action $action) => $action->label('Tambah & Buat Lagi'))
+                // ->preserveFormDataWhenCreatingAnother(fn(array $data) => $data)
+                ->icon('heroicon-o-plus-circle')
+                ->slideOver(),
+
             ExportAction::make()
                 ->exporter(CapitalMutationExporter::class)
                 ->label('Ekspor Data')
