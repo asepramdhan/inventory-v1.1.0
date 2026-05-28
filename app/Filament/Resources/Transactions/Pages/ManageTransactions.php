@@ -46,31 +46,26 @@ class ManageTransactions extends ManageRecords
             'all' => Tab::make('Semua')
                 ->icon('heroicon-o-bars-4')
                 ->badge(static fn(): int => Transaction::query()->where('user_id', Auth::user()->id)->count())
-                ->badgeColor('primary')
-                ->deferBadge(),
+                ->badgeColor('primary'),
             'diproses' => Tab::make('Diproses')
                 ->icon('heroicon-o-clock')
                 ->badge(static fn(): int => Transaction::query()->where('user_id', Auth::user()->id)->where('status', 'Diproses')->count())
                 ->badgeColor('warning')
-                ->deferBadge()
                 ->modifyQueryUsing(fn($query) => $query->where('status', 'Diproses')),
             'dikirim' => Tab::make('Dikirim')
                 ->icon('heroicon-o-truck')
                 ->badge(static fn(): int => Transaction::query()->where('user_id', Auth::user()->id)->where('status', 'Dikirim')->count())
                 ->badgeColor('success')
-                ->deferBadge()
                 ->modifyQueryUsing(fn($query) => $query->where('status', 'Dikirim')),
             'selesai' => Tab::make('Selesai')
                 ->icon('heroicon-o-check-circle')
                 ->badge(static fn(): int => Transaction::query()->where('user_id', Auth::user()->id)->where('status', 'Selesai')->count())
                 ->badgeColor('success')
-                ->deferBadge()
                 ->modifyQueryUsing(fn($query) => $query->where('status', 'Selesai')),
             'dibatalkan' => Tab::make('Dibatalkan')
                 ->icon('heroicon-o-x-circle')
                 ->badge(static fn(): int => Transaction::query()->where('user_id', Auth::user()->id)->where('status', 'Dibatalkan')->count())
                 ->badgeColor('danger')
-                ->deferBadge()
                 ->modifyQueryUsing(fn($query) => $query->where('status', 'Dibatalkan')),
         ];
     }

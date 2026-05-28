@@ -47,29 +47,25 @@ class ManageCapitalMutations extends ManageRecords
             'all' => Tab::make('Semua Mutasi')
                 ->icon('heroicon-o-bars-4')
                 ->badge(static fn(): int => CapitalMutation::query()->where('user_id', Auth::id())->count())
-                ->badgeColor('primary')
-                ->deferBadge(),
+                ->badgeColor('primary'),
 
             'withdrawal' => Tab::make('Penarikan Saldo')
                 ->icon('heroicon-o-arrow-down-tray')
                 ->badge(static fn(): int => CapitalMutation::query()->where('user_id', Auth::id())->where('type', 'withdrawal')->count())
                 ->badgeColor('success')
-                ->deferBadge()
                 ->modifyQueryUsing(fn($query) => $query->where('type', 'withdrawal')),
 
             'supplier_payment' => Tab::make('Pembayaran Produsen')
                 ->icon('heroicon-o-credit-card')
                 ->badge(static fn(): int => CapitalMutation::query()->where('user_id', Auth::id())->where('type', 'supplier_payment')->count())
                 ->badgeColor('warning')
-                ->deferBadge()
                 ->modifyQueryUsing(fn($query) => $query->where('type', 'supplier_payment')),
 
             'unpaid_tempo' => Tab::make('Utang / Tempo')
                 ->icon('heroicon-o-exclamation-circle')
-                ->badge(static fn(): int => CapitalMutation::query()->where('user_id', Auth::id())->where('type', 'supplier_payment')->where('payment_status', 'unpaid')->count())
+                ->badge(static fn(): int => CapitalMutation::query()->where('user_id', Auth::id())->where('payment_status', 'unpaid')->count())
                 ->badgeColor('danger')
-                ->deferBadge()
-                ->modifyQueryUsing(fn($query) => $query->where('type', 'supplier_payment')->where('payment_status', 'unpaid')),
+                ->modifyQueryUsing(fn($query) => $query->where('payment_status', 'unpaid')),
         ];
     }
 

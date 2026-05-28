@@ -5,31 +5,34 @@ namespace App\Filament\Resources\FinancialLogs\Pages;
 use App\Filament\Exports\FinancialLogExporter;
 use App\Filament\Resources\FinancialLogs\FinancialLogResource;
 use App\Models\FinancialLog;
+use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Actions\ExportAction;
-use Filament\Resources\Pages\ListRecords;
+use Filament\Resources\Pages\ManageRecords;
 use Filament\Schemas\Components\Tabs\Tab;
-use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Facades\Auth;
 use Override;
 
-class ListFinancialLogs extends ListRecords
+class ManageFinancialLogs extends ManageRecords
 {
     protected static string $resource = FinancialLogResource::class;
 
-    protected static ?string $title = 'Pencatatan Keuangan'; // Judul di Halaman
-
-    #[Override]
-    public function getSubheading(): string|Htmlable|null
-    {
-        return 'Kelola pencatatan keuangan';
-    }
+    protected static ?string $title = 'Pencatatan Keuangan';
 
     protected function getHeaderActions(): array
     {
         return [
             CreateAction::make()
-                ->label('Buat Catatan'),
+                ->label('Tambah Catatan')
+                ->modalHeading('Tambah Catatan Baru')
+                ->modalDescription('Pastikan nama catatan belum terdaftar sebelumnya.')
+                ->modalWidth('2xl')
+                ->modalSubmitActionLabel('Tambah')
+                ->createAnotherAction(fn(Action $action) => $action->label('Tambah & Buat Lagi'))
+                // ->preserveFormDataWhenCreatingAnother(fn(array $data) => $data)
+                ->icon('heroicon-o-plus-circle')
+                ->slideOver(),
+
             ExportAction::make()
                 ->exporter(FinancialLogExporter::class)
                 ->label('Ekspor'),
@@ -44,15 +47,13 @@ class ListFinancialLogs extends ListRecords
             'all' => Tab::make('Semua Catatan')
                 ->icon('heroicon-o-bars-4')
                 ->badge(static fn(): int => FinancialLog::query()->where('user_id', Auth::id())->count())
-                ->badgeColor('gray')
-                ->deferBadge(),
+                ->badgeColor('gray'),
 
             // 2. PEMASUKAN (INCOME)
             'income' => Tab::make('Pemasukan')
                 ->icon('heroicon-o-arrow-trending-up')
                 ->badge(static fn(): int => FinancialLog::query()->where('user_id', Auth::id())->where('type', 'income')->count())
                 ->badgeColor('success')
-                ->deferBadge()
                 ->modifyQueryUsing(fn($query) => $query->where('type', 'income')),
 
             // 3. PENGELUARAN (EXPENSE)
@@ -60,7 +61,6 @@ class ListFinancialLogs extends ListRecords
                 ->icon('heroicon-o-arrow-trending-down')
                 ->badge(static fn(): int => FinancialLog::query()->where('user_id', Auth::id())->where('type', 'expense')->count())
                 ->badgeColor('warning')
-                ->deferBadge()
                 ->modifyQueryUsing(fn($query) => $query->where('type', 'expense')),
 
             // 4. TRANSAKSI YANG BELUM LUNAS (UTANG / PIUTANG TEMPO)
@@ -68,7 +68,6 @@ class ListFinancialLogs extends ListRecords
                 ->icon('heroicon-o-clock')
                 ->badge(static fn(): int => FinancialLog::query()->where('user_id', Auth::id())->where('payment_status', 'unpaid')->count())
                 ->badgeColor('danger')
-                ->deferBadge()
                 ->modifyQueryUsing(fn($query) => $query->where('payment_status', 'unpaid')),
         ];
     }

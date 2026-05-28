@@ -9,6 +9,7 @@ use App\Models\Transaction;
 use BackedEnum;
 use Carbon\Carbon;
 use Filament\Actions\Action;
+use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -36,6 +37,7 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\HtmlString;
 use Override;
@@ -396,6 +398,7 @@ class TransactionResource extends Resource
             ->recordActions([
                 Action::make('setStatuSent')
                     ->iconButton()
+                    ->modalHeading('Konfirmasi Pengiriman')
                     ->icon('heroicon-o-truck')
                     ->color('info')
                     ->hidden(fn($record) => $record->status !== 'diproses') // Hanya muncul jika status masih diproses
@@ -403,6 +406,7 @@ class TransactionResource extends Resource
                     ->requiresConfirmation(),
                 Action::make('setStatuDibatalkan')
                     ->iconButton()
+                    ->modalHeading('Konfirmasi Pembatalan')
                     ->icon('heroicon-o-x-circle')
                     ->color('danger')
                     ->hidden(fn($record) => $record->status !== 'diproses') // Hanya muncul jika status masih diproses
@@ -410,6 +414,7 @@ class TransactionResource extends Resource
                     ->requiresConfirmation(),
                 Action::make('setGagalKirim')
                     ->iconButton()
+                    ->modalHeading('Konfirmasi Gagal Pengiriman')
                     ->icon('heroicon-o-x-circle')
                     ->color('danger')
                     ->hidden(fn($record) => $record->status !== 'dikirim') // Hanya muncul jika status masih dikirim
@@ -417,6 +422,7 @@ class TransactionResource extends Resource
                     ->requiresConfirmation(),
                 Action::make('setStatuSelesai')
                     ->iconButton()
+                    ->modalHeading('Konfirmasi Selesai')
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
                     ->hidden(fn($record) => $record->status !== 'dikirim') // Hanya muncul jika status masih dikirim
@@ -440,6 +446,30 @@ class TransactionResource extends Resource
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
+                    BulkAction::make('updateStatus')
+                        ->label('Ubah Status Massal')
+                        ->icon('heroicon-o-arrow-path')
+                        ->color('warning')
+                        ->form([
+                            Select::make('status')
+                                ->label('Pilih Status Baru')
+                                ->options([
+                                    'pending' => 'Menunggu Pembayaran',
+                                    'diproses' => 'Sedang Diproses',
+                                    'dikirim' => 'Dalam Pengiriman',
+                                    'selesai' => 'Selesai',
+                                    'dibatalkan' => 'Dibatalkan',
+                                ])
+                                ->required(),
+                        ])
+                        ->action(function (Collection $records, array $data): void {
+                            $records->each(function ($record) use ($data) {
+                                $record->update(['status' => $data['status']]);
+                            });
+                        })
+                        ->deselectRecordsAfterCompletion()
+                        ->requiresConfirmation(),
+
                     DeleteBulkAction::make()
                         ->modalHeading('Hapus Transaksi Yang Dipilih'),
                 ]),

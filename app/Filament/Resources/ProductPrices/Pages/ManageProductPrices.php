@@ -46,8 +46,7 @@ class ManageProductPrices extends ManageRecords
             'all' => Tab::make('Semua Toko')
                 ->icon('heroicon-o-squares-2x2')
                 ->badge(static fn(): int => ProductPrice::query()->whereHas('store', fn($q) => $q->where('user_id', $userId))->count())
-                ->badgeColor('gray')
-                ->deferBadge(),
+                ->badgeColor('gray'),
         ];
 
         // 2. Loop toko untuk jadi sub-tab otomatis
@@ -56,7 +55,6 @@ class ManageProductPrices extends ManageRecords
                 ->icon('heroicon-o-building-storefront')
                 ->badge(static fn(): int => ProductPrice::query()->where('store_id', $store->id)->count())
                 ->badgeColor('warning')
-                ->deferBadge()
                 ->modifyQueryUsing(fn($query) => $query->where('store_id', $store->id));
         }
 

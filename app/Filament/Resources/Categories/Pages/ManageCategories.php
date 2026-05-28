@@ -43,15 +43,13 @@ class ManageCategories extends ManageRecords
             'all' => Tab::make('Semua Kategori')
                 ->icon('heroicon-o-rectangle-group')
                 ->badge(static fn(): int => Category::query()->where('user_id', $userId)->count())
-                ->badgeColor('gray')
-                ->deferBadge(),
+                ->badgeColor('gray'),
 
             // Tab 2: Kategori yang Sedang Digunakan (Aktif)
             'active' => Tab::make('Aktif')
                 ->icon('heroicon-o-check-circle')
                 ->badge(static fn(): int => Category::query()->where('user_id', $userId)->where('status', true)->count())
                 ->badgeColor('success')
-                ->deferBadge()
                 ->modifyQueryUsing(fn($query) => $query->where('status', true)),
 
             // Tab 3: Kategori yang Sedang Diarsipkan (Nonaktif)
@@ -59,7 +57,6 @@ class ManageCategories extends ManageRecords
                 ->icon('heroicon-o-archive-box')
                 ->badge(static fn(): int => Category::query()->where('user_id', $userId)->where('status', false)->count())
                 ->badgeColor('danger')
-                ->deferBadge()
                 ->modifyQueryUsing(fn($query) => $query->where('status', false)),
         ];
     }

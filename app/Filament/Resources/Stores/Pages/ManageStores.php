@@ -42,15 +42,13 @@ class ManageStores extends ManageRecords
             'all' => Tab::make('Semua Platform')
                 ->icon('heroicon-o-building-storefront')
                 ->badge(static fn(): int => Store::query()->where('user_id', $userId)->count())
-                ->badgeColor('gray')
-                ->deferBadge(),
+                ->badgeColor('gray'),
 
             // 2. Shopee
             'shopee' => Tab::make('Shopee')
                 ->icon('heroicon-o-shopping-bag')
                 ->badge(static fn(): int => Store::query()->where('user_id', $userId)->where('platform', 'shopee')->count())
                 ->badgeColor('primary')
-                ->deferBadge()
                 ->modifyQueryUsing(fn($query) => $query->where('platform', 'shopee')),
 
             // 3. Lazada (Tambahan Baru)
@@ -58,7 +56,6 @@ class ManageStores extends ManageRecords
                 ->icon('heroicon-o-shopping-cart')
                 ->badge(static fn(): int => Store::query()->where('user_id', $userId)->where('platform', 'lazada')->count())
                 ->badgeColor('primary')
-                ->deferBadge()
                 ->modifyQueryUsing(fn($query) => $query->where('platform', 'lazada')),
 
             // 4. TikTok Shop
@@ -66,7 +63,6 @@ class ManageStores extends ManageRecords
                 ->icon('heroicon-o-video-camera')
                 ->badge(static fn(): int => Store::query()->where('user_id', $userId)->where('platform', 'tiktok')->count())
                 ->badgeColor('primary')
-                ->deferBadge()
                 ->modifyQueryUsing(fn($query) => $query->where('platform', 'tiktok')),
 
             // 5. Toko Offline / Manual
@@ -74,7 +70,6 @@ class ManageStores extends ManageRecords
                 ->icon('heroicon-o-home')
                 ->badge(static fn(): int => Store::query()->where('user_id', $userId)->where('platform', 'offline')->count())
                 ->badgeColor('gray')
-                ->deferBadge()
                 ->modifyQueryUsing(fn($query) => $query->where('platform', 'offline')),
         ];
     }

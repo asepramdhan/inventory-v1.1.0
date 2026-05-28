@@ -136,13 +136,13 @@ class CapitalMutationResource extends Resource
                     ->default('paid')
                     ->live()
                     ->native(false)
-                    ->visible(fn(Get $get) => $get('type') === 'supplier_payment')
+                    // ->visible(fn(Get $get) => $get('type') === 'supplier_payment')
                     ->extraAttributes(['class' => 'mt-4']),
 
                 DatePicker::make('due_date')
                     ->label('Tanggal Jatuh Tempo')
                     ->required()
-                    ->visible(fn(Get $get) => $get('type') === 'supplier_payment' && $get('payment_status') === 'unpaid')
+                    ->visible(fn(Get $get) => $get('payment_status') === 'unpaid')
                     ->extraAttributes(['class' => 'mt-4']),
 
                 // BLOK DOKUMENTASI TAMBAHAN (Tetap Vertikal Kebawah)
