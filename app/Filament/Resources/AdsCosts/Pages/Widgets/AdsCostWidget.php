@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\AdsCosts\Widgets;
 
-use App\Filament\Resources\AdsCosts\Pages\ListAdsCosts;
+use App\Filament\Resources\AdsCosts\Pages\ManageAdsCosts;
 use App\Models\AdsCost;
 use Filament\Widgets\Concerns\InteractsWithPageTable;
 use Filament\Widgets\StatsOverviewWidget;
@@ -19,7 +19,7 @@ class AdsCostWidget extends StatsOverviewWidget
 
     protected function getTablePage(): string
     {
-        return ListAdsCosts::class;
+        return ManageAdsCosts::class;
     }
 
     protected function getStats(): array
