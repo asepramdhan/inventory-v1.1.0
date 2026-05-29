@@ -16,8 +16,11 @@ class LatestTransactions extends TableWidget
     use InteractsWithPageFilters; // Mengizinkan tabel membaca filter global dari halaman induk
 
     protected ?string $pollingInterval = null;
+
     protected static bool $isLazy = false;
+
     protected int|string|array $columnSpan = 'full';
+
     protected static ?string $heading = 'Rincian Transaksi & Margin Produk';
 
     public function table(Table $table): Table

@@ -8,14 +8,14 @@ use App\Models\Store;
 use BackedEnum;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
-use Illuminate\Contracts\Support\Htmlable;
+// use Illuminate\Contracts\Support\Htmlable;
 use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Pages\Dashboard\Concerns\HasFiltersForm;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Auth;
-use Override;
+// use Override;
 use UnitEnum;
 
 class MarginAnalysis extends Page
@@ -30,13 +30,13 @@ class MarginAnalysis extends Page
 
     protected static ?string $navigationLabel = 'Analisa Margin'; // Judul di Sidebar
 
-    protected static ?string $title = 'Analisa Margin Keuntungan'; // Judul di Halaman
+    protected static ?string $title = 'Analisa Margin'; // Judul di Halaman
 
-    #[Override]
-    public function getSubheading(): string|Htmlable|null
-    {
-        return 'Analisa Margin Keuntungan';
-    }
+    // #[Override]
+    // public function getSubheading(): string|Htmlable|null
+    // {
+    //     return 'Analisa Margin Keuntungan';
+    // }
 
     // Ubah type hint menjadi Schema sesuai pesan error
     public function filtersForm(Schema $schema): Schema
