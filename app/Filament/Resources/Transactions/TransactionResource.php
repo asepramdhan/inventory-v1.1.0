@@ -96,6 +96,7 @@ class TransactionResource extends Resource
                 TextInput::make('order_number')
                     ->label('Nomor Pesanan')
                     ->placeholder('Contoh: ORD-2026001')
+                    ->unique()
                     ->autofocus(),
 
                 Select::make('status')
@@ -309,8 +310,8 @@ class TransactionResource extends Resource
                     ->placeholder('Tanpa No. Pesanan')
                     ->copyable()
                     ->copyMessage('No. Pesanan berhasil disalin')
-                    ->copyMessageDuration(1500)
-                    ->description(fn($record) => ucfirst(substr($record->items->first()->product->sku, 15))),
+                    ->copyMessageDuration(1500),
+                // ->description(fn($record) => ucfirst(substr($record->items->first()->product->sku, 15))),
 
                 // 3. Total Harga (Dibuat tebal & warna hijau agar kontras)
                 TextColumn::make('total_price')

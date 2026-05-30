@@ -9,10 +9,22 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
 
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'media',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
 
     <style>
         body {
@@ -23,12 +35,10 @@
 
 <body class="antialiased bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-50">
 
-    <!-- Navigation Bar -->
     <nav
         class="sticky top-0 z-50 backdrop-blur-md bg-white/70 dark:bg-zinc-950/70 border-b border-zinc-200 dark:border-zinc-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
-                <!-- Brand Logo & Version -->
                 <div class="flex items-center gap-2.5">
                     <div
                         class="h-9 w-9 rounded-xl bg-amber-500 flex items-center justify-center text-black font-black text-xl shadow-lg shadow-amber-500/20">
@@ -46,7 +56,6 @@
                     </div>
                 </div>
 
-                <!-- Auth Navigation -->
                 <div class="flex items-center gap-4">
                     @auth
                     <a href="{{ url('/admin') }}"
@@ -176,8 +185,9 @@
                         </svg>
                     </div>
                     <h3 class="text-lg font-semibold mb-2">Performa Kilat</h3>
-                    <p class="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">Dibangun di atas Laravel 12 dan
-                        dibungkus UI reaktif untuk memastikan pencarian data produk berjalan tanpa lemot.</p>
+                    <p class="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">Dibangun di atas komponen
+                        backend solid dan dibungkus UI reaktif untuk memastikan pencarian data produk berjalan tanpa
+                        lemot.</p>
                 </div>
             </div>
         </div>

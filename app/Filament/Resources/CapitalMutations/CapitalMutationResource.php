@@ -150,6 +150,7 @@ class CapitalMutationResource extends Resource
                     ->label('Nomor Referensi / ID Transaksi Bank')
                     ->placeholder('Contoh: Ref-102930492, No. Nota Produsen')
                     ->columnSpanFull()
+                    ->unique()
                     ->extraAttributes(['class' => 'mt-4']),
 
                 Textarea::make('description')
