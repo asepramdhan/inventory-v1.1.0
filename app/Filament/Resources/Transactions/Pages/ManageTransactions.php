@@ -3,11 +3,13 @@
 namespace App\Filament\Resources\Transactions\Pages;
 
 use App\Filament\Exports\TransactionExporter;
+use App\Filament\Imports\TransactionImporter;
 use App\Filament\Resources\Transactions\TransactionResource;
 use App\Models\Transaction;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Actions\ExportAction;
+use Filament\Actions\ImportAction;
 use Filament\Resources\Pages\ManageRecords;
 use Filament\Schemas\Components\Tabs\Tab;
 use Illuminate\Support\Facades\Auth;
@@ -33,9 +35,15 @@ class ManageTransactions extends ManageRecords
                 ->icon('heroicon-o-plus-circle')
                 ->slideOver(),
 
+            ImportAction::make()
+                ->importer(TransactionImporter::class)
+                ->label('Import')
+                ->icon('heroicon-o-arrow-up-tray'),
+
             ExportAction::make()
                 ->exporter(TransactionExporter::class)
-                ->label('Ekspor'),
+                ->label('Ekspor')
+                ->icon('heroicon-o-arrow-down-tray'),
         ];
     }
 
