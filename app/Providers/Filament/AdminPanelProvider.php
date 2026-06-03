@@ -8,7 +8,9 @@ use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Panel;
 use Filament\PanelProvider;
-use Filament\Support\Colors\Color;
+// use Filament\Support\Colors\Color;
+use Openplain\FilamentShadcnTheme\Color;
+use Filament\Support\Colors\Color as FilamentColor;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
@@ -31,7 +33,11 @@ class AdminPanelProvider extends PanelProvider
             ->databaseNotifications()
             ->databaseNotificationsPolling('1000s')
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => Color::Orange,
+                // 'primary' => Color::adaptive(
+                //     lightColor: FilamentColor::Green,
+                //     darkColor: FilamentColor::Amber
+                // ),
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
