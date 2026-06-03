@@ -22,15 +22,15 @@ class ManageAdsCosts extends ManageRecords
 
     protected static string $resource = AdsCostResource::class;
 
-    protected static ?string $title = 'Kelola Biaya Iklan';
+    protected static ?string $title = 'Kelola Biaya Iklan / Afiliasi';
 
     protected function getHeaderActions(): array
     {
         return [
             CreateAction::make()
-                ->label('Tambah Iklan')
-                ->modalHeading('Tambah Iklan Baru')
-                ->modalDescription('Pastikan nama iklan belum terdaftar sebelumnya.')
+                ->label('Tambah Iklan / Afiliasi')
+                ->modalHeading('Tambah Iklan / Afiliasi Baru')
+                ->modalDescription('Pastikan nama iklan / afiliasi belum terdaftar sebelumnya.')
                 ->modalWidth('md')
                 ->modalSubmitActionLabel('Tambah')
                 ->createAnotherAction(fn(Action $action) => $action->label('Tambah & Buat Lagi'))

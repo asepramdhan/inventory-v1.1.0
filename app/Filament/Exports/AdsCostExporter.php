@@ -22,7 +22,7 @@ class AdsCostExporter extends Exporter
             ExportColumn::make('store.shop_name')
                 ->label('Nama Toko'),
             ExportColumn::make('amount')
-                ->label('Biaya Iklan')
+                ->label('Biaya Iklan / Afiliasi')
                 ->formatStateUsing(fn(float $state): string => Number::format($state, locale: 'id')),
         ];
     }

@@ -35,7 +35,7 @@ class AdsCostResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Keuangan & Analisa';
 
-    protected static ?string $navigationLabel = ' Biaya Iklan';
+    protected static ?string $navigationLabel = 'Iklan / Affiliasi';
 
     #[Override]
     public static function getEloquentQuery(): Builder
@@ -67,7 +67,7 @@ class AdsCostResource extends Resource
                     ->extraAttributes(['class' => 'mt-4']),
 
                 TextInput::make('amount')
-                    ->label('Nominal Biaya Iklan')
+                    ->label('Nominal Biaya Iklan / Afiliasi')
                     ->prefix('Rp')
                     ->required()
                     ->extraInputAttributes(['type' => 'text', 'inputmode' => 'numeric'])
@@ -76,7 +76,8 @@ class AdsCostResource extends Resource
                         if (! $state) return null;
                         return preg_replace('/[^0-9]/', '', $state);
                     })
-                    ->extraAttributes(['class' => 'mt-4']),
+                    ->extraAttributes(['class' => 'mt-4'])
+                    ->columnSpanFull(),
             ]);
     }
 
@@ -90,7 +91,7 @@ class AdsCostResource extends Resource
                     ->color('warning'),
 
                 TextEntry::make('amount')
-                    ->label('Nominal Biaya Iklan')
+                    ->label('Nominal Biaya Iklan / Afiliasi')
                     ->money('IDR', locale: 'id_ID', decimalPlaces: 0)
                     ->weight('bold')
                     ->extraAttributes(['class' => 'mt-4']),
@@ -123,7 +124,7 @@ class AdsCostResource extends Resource
                     ->searchable(),
 
                 TextColumn::make('amount')
-                    ->label('Biaya Iklan')
+                    ->label('Biaya Iklan / Afiliasi')
                     ->money('IDR', locale: 'id_ID', decimalPlaces: 0)
                     ->badge()
                     ->color('warning')
