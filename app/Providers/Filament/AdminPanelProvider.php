@@ -66,10 +66,10 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->spa()
             ->resourceCreatePageRedirect('index')
-            ->resourceEditPageRedirect('index')
-            ->plugins([
-                FilamentQuickNotesPlugin::make()
-                    ->visible(true),
-            ]);
+            ->resourceEditPageRedirect('index');
+        // ->plugins([
+        //     FilamentQuickNotesPlugin::make()
+        //         ->visible(true),
+        // ]);
     }
 }

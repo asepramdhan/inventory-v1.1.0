@@ -18,7 +18,7 @@ use Rarq\FilamentQuickNotes\Traits\HasFilamentQuickNotes;
 class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable, HasFilamentQuickNotes;
+    use HasFactory, Notifiable;
 
     /**
      * Get the attributes that should be cast.
