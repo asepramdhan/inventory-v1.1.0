@@ -11,13 +11,14 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
+use Rarq\FilamentQuickNotes\Traits\HasFilamentQuickNotes;
 
 #[Fillable(['name', 'email', 'password'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasFilamentQuickNotes;
 
     /**
      * Get the attributes that should be cast.
