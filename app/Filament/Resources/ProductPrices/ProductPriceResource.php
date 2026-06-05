@@ -28,6 +28,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Override;
+use TinusG\FilamentHoverImageColumn\HoverImageColumn;
 use UnitEnum;
 
 class ProductPriceResource extends Resource
@@ -126,8 +127,8 @@ class ProductPriceResource extends Resource
             ->recordTitleAttribute('ProductPrice')
             ->deferLoading()
             ->columns([
-                ImageColumn::make('product.image')->label('Gambar')
-                    ->imageSize(55),
+                HoverImageColumn::make('product.image')->label('Gambar')
+                    ->previewSize(200),
                 TextColumn::make('created_at')
                     ->label('Tanggal')
                     ->dateTime('d M y H:i')

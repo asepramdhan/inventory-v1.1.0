@@ -11,7 +11,8 @@
         "laravel/framework": "^13.8",
         "laravel/tinker": "^3.0",
         "openplain/filament-shadcn-theme": "^1.1",
-        "rarq/filament-quick-notes": "^1.0"
+        "rarq/filament-quick-notes": "^1.0",
+        "tinusg/filament-hover-image-column": "^1.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

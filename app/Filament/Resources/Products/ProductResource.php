@@ -32,6 +32,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Override;
+use TinusG\FilamentHoverImageColumn\HoverImageColumn;
 use UnitEnum;
 
 class ProductResource extends Resource
@@ -130,8 +131,8 @@ class ProductResource extends Resource
             ->recordTitleAttribute('Product')
             ->deferLoading()
             ->columns([
-                ImageColumn::make('image')->label('Gambar')
-                    ->imageSize(55),
+                HoverImageColumn::make('image')->label('Gambar')
+                    ->previewSize(200),
                 TextColumn::make('created_at')
                     ->label('Tanggal')
                     ->dateTime('d M y H:i')

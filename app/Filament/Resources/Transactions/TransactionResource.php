@@ -41,6 +41,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\HtmlString;
 use Override;
+use TinusG\FilamentHoverImageColumn\HoverImageColumn;
 use UnitEnum;
 
 class TransactionResource extends Resource
@@ -289,16 +290,16 @@ class TransactionResource extends Resource
             ->persistSortInSession(true)
             ->deferLoading()
             ->columns([
-                ImageColumn::make('items.product.image')
+                HoverImageColumn::make('items.product.image')
                     ->label('Gambar')
                     ->stacked()
                     ->limit(1)
                     ->limitedRemainingText()
-                    ->imageSize(45),
+                    ->previewSize(200),
 
                 // 5. Waktu Transaksi (Format lebih ringkas)
                 TextColumn::make('created_at')
-                    ->label('Tanggal Transaksi')
+                    ->label('Tanggal')
                     ->dateTime('d M y H:i')
                     ->timezone('Asia/Jakarta')
                     ->sortable()
