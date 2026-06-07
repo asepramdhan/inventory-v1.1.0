@@ -17,7 +17,7 @@ use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use Rarq\FilamentQuickNotes\FilamentQuickNotesPlugin;
+use lockscreen\FilamentLockscreen\Lockscreen;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -34,7 +34,7 @@ class AdminPanelProvider extends PanelProvider
             ->databaseNotifications()
             ->databaseNotificationsPolling('1000s')
             ->colors([
-                'primary' => Color::Orange,
+                'primary' => Color::Blue,
                 // 'primary' => Color::adaptive(
                 //     lightColor: FilamentColor::Green,
                 //     darkColor: FilamentColor::Amber
@@ -66,10 +66,13 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->spa()
             ->resourceCreatePageRedirect('index')
-            ->resourceEditPageRedirect('index');
-        // ->plugins([
-        //     FilamentQuickNotesPlugin::make()
-        //         ->visible(true),
-        // ]);
+            ->resourceEditPageRedirect('index')
+            ->plugins([
+                Lockscreen::make()
+                    ->enableIdleTimeout(3600)
+                    ->enableRateLimit(limit: 3, decayMinutes: 2, forceLogout: true)
+                    ->disableDisplayName()
+                    ->enablePlugin()
+            ]);
     }
 }
