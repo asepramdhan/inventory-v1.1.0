@@ -9,6 +9,7 @@ use App\Models\Transaction;
 use BackedEnum;
 use Carbon\Carbon;
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -322,6 +323,64 @@ class TransactionResource extends Resource
                     ->weight('bold')
                     ->sortable(),
 
+                TextColumn::make('total_margin')
+                    ->label('Margin Bersih')
+                    ->money('IDR', locale: 'id_ID', decimalPlaces: 0)
+                    ->weight('bold')
+                    ->color(fn($state) => $state >= 0 ? 'success' : 'danger')
+                    ->alignEnd()
+                    ->getStateUsing(function (Transaction $record) {
+                        $store = $record->store;
+                        if (! $store) return 0;
+
+                        $totalMarginBersih = 0;
+
+                        // Iterasi semua item produk yang dibeli dalam 1 transaksi ini
+                        foreach ($record->items as $item) {
+                            $subtotalItem = $item->price * $item->quantity;
+
+                            // 1. Ambil HPP produk pada toko terkait melalui ProductPrice
+                            $hppUnit = \App\Models\ProductPrice::where('product_id', $item->product_id)
+                                ->where('store_id', $store->id)
+                                ->value('price') ?? 0;
+                            $totalHppItem = $hppUnit * $item->quantity;
+
+                            // 2. Hitung Potongan Admin Marketplace per subtotal item
+                            $adminFeeAmount = $subtotalItem * ((float) $store->admin_fee / 100);
+
+                            // Perhitungan margin kotor item dikurangi admin fee
+                            $totalMarginBersih += ($subtotalItem - $totalHppItem - $adminFeeAmount);
+                        }
+
+                        // 3. Potongan Tetap Transaksi per Nota Toko (diambil sekali per transaksi)
+                        $processingFee = (float) $store->processing_fee;
+                        $extraFee = (float) $store->extra_fee;
+
+                        // Hasil akhir akumulasi margin dikurangi biaya operasional tetap toko
+                        return $totalMarginBersih - $processingFee - $extraFee;
+                    })
+                    ->description(function (Transaction $record) {
+                        $store = $record->store;
+                        if (! $store || $record->total_price <= 0) return '0%';
+
+                        // Hitung ulang state menggunakan fungsi yang sama untuk persentase
+                        $totalMargin = 0;
+                        foreach ($record->items as $item) {
+                            $subtotalItem = $item->price * $item->quantity;
+                            $hppUnit = \App\Models\ProductPrice::where('product_id', $item->product_id)
+                                ->where('store_id', $store->id)
+                                ->value('price') ?? 0;
+                            $adminFeeAmount = $subtotalItem * ((float) $store->admin_fee / 100);
+                            $totalMargin += ($subtotalItem - ($hppUnit * $item->quantity) - $adminFeeAmount);
+                        }
+                        $marginBersih = $totalMargin - (float)$store->processing_fee - (float)$store->extra_fee;
+
+                        // Persentase Margin Bersih terhadap Total Harga Jual
+                        $percentage = ($marginBersih / $record->total_price) * 100;
+
+                        return number_format($percentage, 1, ',', '.') . '%';
+                    }),
+
                 // 4. QTY (Gunakan warna yang berbeda untuk membedakan dengan harga)
                 TextColumn::make('items_sum_quantity')
                     ->sum('items', 'quantity')
@@ -398,53 +457,55 @@ class TransactionResource extends Resource
                     }),
             ], layout: FiltersLayout::Modal)
             ->recordActions([
-                Action::make('setStatuSent')
-                    ->iconButton()
-                    ->modalHeading('Konfirmasi Pengiriman')
-                    ->icon('heroicon-o-truck')
-                    ->color('info')
-                    ->hidden(fn($record) => $record->status !== 'diproses') // Hanya muncul jika status masih diproses
-                    ->action(fn($record) => $record->update(['status' => 'dikirim']))
-                    ->requiresConfirmation(),
-                Action::make('setStatuDibatalkan')
-                    ->iconButton()
-                    ->modalHeading('Konfirmasi Pembatalan')
-                    ->icon('heroicon-o-x-circle')
-                    ->color('danger')
-                    ->hidden(fn($record) => $record->status !== 'diproses') // Hanya muncul jika status masih diproses
-                    ->action(fn($record) => $record->update(['status' => 'dibatalkan']))
-                    ->requiresConfirmation(),
-                Action::make('setGagalKirim')
-                    ->iconButton()
-                    ->modalHeading('Konfirmasi Gagal Pengiriman')
-                    ->icon('heroicon-o-x-circle')
-                    ->color('danger')
-                    ->hidden(fn($record) => $record->status !== 'dikirim') // Hanya muncul jika status masih dikirim
-                    ->action(fn($record) => $record->update(['status' => 'dibatalkan']))
-                    ->requiresConfirmation(),
-                Action::make('setStatuSelesai')
-                    ->iconButton()
-                    ->modalHeading('Konfirmasi Selesai')
-                    ->icon('heroicon-o-check-circle')
-                    ->color('success')
-                    ->hidden(fn($record) => $record->status !== 'dikirim') // Hanya muncul jika status masih dikirim
-                    ->action(fn($record) => $record->update(['status' => 'selesai']))
-                    ->requiresConfirmation(),
-                ViewAction::make()
-                    ->iconButton()
-                    ->modalHeading('Detail Transaksi')
-                    ->modalDescription('Detail Transaksi Produk')
-                    ->modalWidth('2xl')
-                    ->slideOver(),
-                EditAction::make()
-                    ->iconButton()
-                    ->modalHeading('Ubah Transaksi')
-                    ->modalDescription('Ubah Transaksi Produk')
-                    ->modalWidth('2xl')
-                    ->slideOver(),
-                DeleteAction::make()
-                    ->iconButton()
-                    ->modalHeading('Hapus Transaksi'),
+                ActionGroup::make([
+                    Action::make('setStatuSent')
+                        ->label('Kirim')
+                        ->modalHeading('Konfirmasi Pengiriman')
+                        ->icon('heroicon-o-truck')
+                        ->color('info')
+                        ->hidden(fn($record) => $record->status !== 'diproses') // Hanya muncul jika status masih diproses
+                        ->action(fn($record) => $record->update(['status' => 'dikirim']))
+                        ->requiresConfirmation(),
+                    Action::make('setStatuDibatalkan')
+                        ->label('Batalkan')
+                        ->modalHeading('Konfirmasi Pembatalan')
+                        ->icon('heroicon-o-x-circle')
+                        ->color('danger')
+                        ->hidden(fn($record) => $record->status !== 'diproses') // Hanya muncul jika status masih diproses
+                        ->action(fn($record) => $record->update(['status' => 'dibatalkan']))
+                        ->requiresConfirmation(),
+                    Action::make('setGagalKirim')
+                        ->label('Gagal Kirim')
+                        ->modalHeading('Konfirmasi Gagal Pengiriman')
+                        ->icon('heroicon-o-x-circle')
+                        ->color('danger')
+                        ->hidden(fn($record) => $record->status !== 'dikirim') // Hanya muncul jika status masih dikirim
+                        ->action(fn($record) => $record->update(['status' => 'dibatalkan']))
+                        ->requiresConfirmation(),
+                    Action::make('setStatuSelesai')
+                        ->label('Selesai')
+                        ->modalHeading('Konfirmasi Selesai')
+                        ->icon('heroicon-o-check-circle')
+                        ->color('success')
+                        ->hidden(fn($record) => $record->status !== 'dikirim') // Hanya muncul jika status masih dikirim
+                        ->action(fn($record) => $record->update(['status' => 'selesai']))
+                        ->requiresConfirmation(),
+                    ViewAction::make()
+                        ->label('Detail')
+                        ->modalHeading('Detail Transaksi')
+                        ->modalDescription('Detail Transaksi Produk')
+                        ->modalWidth('2xl')
+                        ->slideOver(),
+                    EditAction::make()
+                        ->label('Ubah')
+                        ->modalHeading('Ubah Transaksi')
+                        ->modalDescription('Ubah Transaksi Produk')
+                        ->modalWidth('2xl')
+                        ->slideOver(),
+                    DeleteAction::make()
+                        ->label('Hapus')
+                        ->modalHeading('Hapus Transaksi'),
+                ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
